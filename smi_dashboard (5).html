@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard SMI - อ.โกสุมพิสัย</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg:       #f0f7f4;
+    --bg2:      #e8f5f0;
+    --bg3:      #dff0e8;
+    --white:    #ffffff;
+    --cream:    #fafdf8;
+    --card:     #ffffff;
+    --card2:    #f4faf7;
+
+    --teal:     #2a9d8f;
+    --teal2:    #21867a;
+    --teal-lt:  #e0f4f1;
+    --teal-lt2: #c8ece7;
+    --sky:      #3b9edd;
+    --sky-lt:   #e3f2fd;
+    --green:    #3aaf6e;
+    --green-lt: #e6f7ed;
+    --mint:     #52c4a0;
+
+    --red:      #e05252;
+    --red-lt:   #fdecea;
+    --orange:   #e8873a;
+    --orange-lt:#fef3e8;
+    --yellow:   #d4a017;
+    --yellow-lt:#fdf6e0;
+    --purple:   #7c6db5;
+    --purple-lt:#f0eefb;
+
+    --text:     #1a3a32;
+    --text2:    #3d6b5e;
+    --text3:    #7aa898;
+    --border:   #cde8df;
+    --border2:  #b2d9cc;
+    --shadow:   0 2px 12px rgba(42,157,143,0.10);
+    --shadow2:  0 4px 24px rgba(42,157,143,0.14);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    font-family:'Sarabun', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height:100vh;
+    overflow-x:hidden;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #1d7a6b 0%, #2a9d8f 50%, #3aaf8a 100%);
+    padding: 0;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 16px rgba(42,157,143,0.25);
+  }
+
+  .header-inner {
+    max-width:1600px; margin:0 auto;
+    padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
+  }
+
+  .header-left { display:flex; align-items:center; gap:14px; }
+
+  .logo-badge {
+    width:46px; height:46px;
+    background:rgba(255,255,255,0.25);
+    border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; backdrop-filter:blur(8px);
+    border:1.5px solid rgba(255,255,255,0.35);
+    flex-shrink:0;
+  }
+
+  .header-title h1 { font-size:clamp(14px,2.4vw,19px); font-weight:800; color:#fff; line-height:1.2; }
+  .header-title p  { font-size:12px; color:rgba(255,255,255,0.8); margin-top:2px; }
+
+  .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+  .live-badge {
+    display:flex; align-items:center; gap:6px;
+    background:rgba(255,255,255,0.2);
+    border:1px solid rgba(255,255,255,0.35);
+    padding:5px 12px; border-radius:20px;
+    font-size:12px; color:#fff; font-weight:600;
+    backdrop-filter:blur(6px);
+  }
+  .live-dot { width:7px; height:7px; background:#a8f0d4; border-radius:50%; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+
+  .date-badge {
+    background:rgba(255,255,255,0.18);
+    border:1px solid rgba(255,255,255,0.3);
+    padding:5px 14px; border-radius:8px;
+    font-size:11px; color:rgba(255,255,255,0.9);
+  }
+
+  /* ── TABS ── */
+  .nav-tabs {
+    background: var(--white);
+    border-bottom:2px solid var(--border);
+    overflow-x:auto; scrollbar-width:none;
+    box-shadow: 0 1px 6px rgba(42,157,143,0.08);
+  }
+  .nav-tabs::-webkit-scrollbar{display:none}
+
+  .nav-tabs-inner {
+    max-width:1600px; margin:0 auto;
+    padding:0 24px; display:flex; gap:2px;
+  }
+
+  .tab-btn {
+    padding:11px 18px;
+    border:none; background:none;
+    color:var(--text3);
+    font-family:'Sarabun',sans-serif;
+    font-size:13px; font-weight:600;
+    cursor:pointer;
+    border-bottom:3px solid transparent;
+    transition:all .2s; white-space:nowrap;
+    display:flex; align-items:center; gap:6px;
+    margin-bottom:-2px;
+  }
+  .tab-btn:hover { color:var(--teal); background:var(--teal-lt); border-radius:6px 6px 0 0; }
+  .tab-btn.active { color:var(--teal2); border-bottom-color:var(--teal); background:var(--teal-lt); border-radius:6px 6px 0 0; }
+
+  /* ── MAIN ── */
+  .main { max-width:1600px; margin:0 auto; padding:24px; }
+
+  /* ── SECTION ── */
+  .section{display:none}
+  .section.active{display:block}
+
+  /* ── KPI GRID ── */
+  .kpi-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
+    gap:14px; margin-bottom:22px;
+  }
+
+  .kpi-card {
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:16px; padding:18px 20px;
+    position:relative; overflow:hidden;
+    transition:transform .2s, box-shadow .2s;
+    box-shadow:var(--shadow);
+  }
+  .kpi-card::before {
+    content:''; position:absolute;
+    top:0; left:0; right:0; height:4px;
+    background:var(--kpi-color, var(--teal));
+    border-radius:16px 16px 0 0;
+  }
+  .kpi-card:hover { transform:translateY(-3px); box-shadow:var(--shadow2); }
+
+  .kpi-icon { font-size:26px; margin-bottom:8px; display:block; }
+  .kpi-value { font-size:clamp(26px,3.5vw,38px); font-weight:800; color:var(--text); line-height:1; margin-bottom:4px; }
+  .kpi-label { font-size:12px; color:var(--text3); margin-bottom:8px; font-weight:500; line-height:1.4; }
+  .kpi-sub {
+    font-size:11px; color:var(--text3);
+    padding-top:8px; border-top:1px solid var(--border);
+  }
+  .kpi-sub span { color:var(--teal); font-weight:700; }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:18px; margin-bottom:22px;
+  }
+
+  .chart-card {
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:16px; padding:20px;
+    box-shadow:var(--shadow);
+  }
+  .chart-card.wide { grid-column:1/-1; }
+
+  .chart-header {
+    display:flex; align-items:flex-start; justify-content:space-between;
+    margin-bottom:14px; flex-wrap:wrap; gap:8px;
+  }
+  .chart-title { font-size:14px; font-weight:700; color:var(--text); }
+  .chart-subtitle { font-size:11px; color:var(--text3); margin-top:2px; }
+
+  .chart-badge {
+    padding:4px 10px; border-radius:20px;
+    font-size:11px; font-weight:700;
+    background:var(--teal-lt); color:var(--teal2);
+    border:1px solid var(--teal-lt2);
+    white-space:nowrap;
+  }
+
+  .chart-wrap { position:relative; height:210px; }
+  .chart-wrap.tall { height:270px; }
+
+  /* ── URGENCY CARDS ── */
+  .urgency-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:14px; margin-bottom:22px;
+  }
+
+  .urgency-card {
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:16px; padding:18px;
+    box-shadow:var(--shadow);
+  }
+
+  .urgency-item { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+  .urgency-dot { width:12px; height:12px; border-radius:4px; flex-shrink:0; }
+  .urgency-info { flex:1; }
+  .urgency-name { font-size:12px; font-weight:600; color:var(--text); margin-bottom:4px; }
+  .urgency-bar-wrap { height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; }
+  .urgency-bar { height:100%; border-radius:3px; transition:width 1s ease; }
+  .urgency-count { font-size:18px; font-weight:800; color:var(--text); min-width:32px; text-align:right; }
+
+  /* ── TABLE ── */
+  .table-card {
+    background:var(--card);
+    border:1.5px solid var(--border);
+    border-radius:16px; overflow:hidden;
+    margin-bottom:22px; box-shadow:var(--shadow);
+  }
+
+  .table-header {
+    padding:16px 20px; border-bottom:1.5px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:12px;
+    background:var(--cream);
+  }
+  .table-title { font-size:14px; font-weight:700; color:var(--text); }
+
+  .search-box {
+    background:var(--white);
+    border:1.5px solid var(--border2);
+    border-radius:10px; padding:7px 14px;
+    color:var(--text);
+    font-family:'Sarabun',sans-serif; font-size:13px;
+    outline:none; min-width:200px; transition:border-color .2s;
+  }
+  .search-box:focus { border-color:var(--teal); box-shadow:0 0 0 3px var(--teal-lt); }
+  .search-box::placeholder { color:var(--text3); }
+
+  .table-wrap { overflow-x:auto; }
+
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+
+  thead tr { background:var(--bg2); }
+  thead th {
+    padding:11px 14px;
+    text-align:left; font-weight:700;
+    color:var(--text2); font-size:11px;
+    text-transform:uppercase; letter-spacing:.5px;
+    white-space:nowrap; cursor:pointer; user-select:none;
+    border-bottom:1.5px solid var(--border);
+  }
+  thead th:hover { color:var(--teal); }
+
+  tbody tr { border-bottom:1px solid var(--border); transition:background .15s; }
+  tbody tr:hover { background:var(--teal-lt); }
+  tbody td { padding:10px 14px; color:var(--text); vertical-align:middle; }
+
+  .no-badge {
+    background:var(--bg3); border-radius:6px;
+    padding:2px 8px; font-weight:700; font-size:12px; color:var(--text2);
+  }
+
+  .gender-badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; }
+  .gender-m { background:var(--sky-lt); color:var(--sky); }
+  .gender-f { background:#fde8f4; color:#c2549a; }
+
+  .urgency-pill {
+    display:inline-flex; align-items:center; gap:4px;
+    padding:4px 10px; border-radius:20px;
+    font-size:11px; font-weight:700; white-space:nowrap;
+  }
+  .u-emergency { background:var(--red-lt); color:var(--red); border:1px solid #f9c8c8; }
+  .u-urgency3  { background:var(--orange-lt); color:var(--orange); border:1px solid #f9dec8; }
+  .u-urgency2  { background:var(--yellow-lt); color:var(--yellow); border:1px solid #f5e0a0; }
+  .u-urgency1  { background:var(--green-lt); color:var(--green); border:1px solid #b8e8ce; }
+  .u-semi      { background:var(--purple-lt); color:var(--purple); border:1px solid #d4ceee; }
+
+  .age-group-pill {
+    padding:3px 8px; border-radius:6px; font-size:11px; font-weight:500;
+    background:var(--bg3); color:var(--text2); white-space:nowrap;
+  }
+
+  /* ── PAGINATION ── */
+  .pagination {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 20px; border-top:1.5px solid var(--border);
+    flex-wrap:wrap; gap:10px;
+    background:var(--cream);
+  }
+  .page-info { font-size:12px; color:var(--text3); }
+  .page-btns { display:flex; gap:6px; }
+
+  .page-btn {
+    background:var(--white); border:1.5px solid var(--border);
+    color:var(--text2); width:32px; height:32px;
+    border-radius:8px; cursor:pointer; font-size:13px;
+    display:flex; align-items:center; justify-content:center;
+    transition:all .15s; font-family:'Sarabun',sans-serif;
+  }
+  .page-btn:hover { background:var(--teal-lt); border-color:var(--teal); color:var(--teal2); }
+  .page-btn.active { background:var(--teal); color:#fff; border-color:var(--teal); }
+
+  /* ── DRUG CARDS ── */
+  .drugs-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:12px; margin-bottom:22px;
+  }
+
+  .drug-card {
+    background:var(--card); border:1.5px solid var(--border);
+    border-radius:12px; padding:16px;
+    display:flex; align-items:center; gap:12px;
+    transition:all .2s; box-shadow:var(--shadow);
+  }
+  .drug-card:hover { border-color:var(--teal); transform:translateY(-2px); box-shadow:var(--shadow2); }
+  .drug-icon { width:42px; height:42px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; }
+  .drug-info .drug-name { font-size:12px; font-weight:700; color:var(--text); }
+  .drug-info .drug-count { font-size:22px; font-weight:800; color:var(--text); line-height:1.1; }
+  .drug-info .drug-pct { font-size:11px; color:var(--text3); }
+
+  /* ── SUB AREA ── */
+  .sub-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(290px,1fr));
+    gap:16px; margin-bottom:22px;
+  }
+  .sub-card {
+    background:var(--card); border:1.5px solid var(--border);
+    border-radius:16px; overflow:hidden; box-shadow:var(--shadow);
+  }
+  .sub-item {
+    display:flex; align-items:center; padding:9px 16px;
+    border-bottom:1px solid var(--border); transition:background .15s;
+  }
+  .sub-item:last-child { border-bottom:none; }
+  .sub-item:hover { background:var(--teal-lt); }
+  .sub-rank {
+    width:22px; height:22px; border-radius:6px;
+    background:var(--bg3); display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:700; color:var(--text3); flex-shrink:0; margin-right:10px;
+  }
+  .sub-rank.top { background:var(--yellow-lt); color:var(--yellow); }
+  .sub-name { flex:1; font-size:13px; font-weight:500; color:var(--text); }
+  .sub-bar-wrap { width:70px; height:4px; background:var(--bg3); border-radius:2px; margin:0 10px; overflow:hidden; }
+  .sub-bar { height:100%; border-radius:2px; background:var(--teal); }
+  .sub-count { font-size:15px; font-weight:800; color:var(--text); min-width:24px; text-align:right; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size:15px; font-weight:700; color:var(--text);
+    margin-bottom:16px; padding-bottom:10px;
+    border-bottom:2px solid var(--border);
+    display:flex; align-items:center; gap:8px;
+  }
+  .section-title-icon {
+    width:28px; height:28px;
+    background:var(--teal-lt); border-radius:8px;
+    display:flex; align-items:center; justify-content:center; font-size:14px;
+  }
+
+  /* ── ALERT STRIP ── */
+  .alert-strip {
+    display:flex; align-items:flex-start; gap:12px;
+    background:#fff8f0; border:1.5px solid #f9c8a0;
+    border-radius:12px; padding:14px 18px; margin-bottom:20px;
+  }
+  .alert-icon { font-size:20px; flex-shrink:0; margin-top:1px; }
+  .alert-text strong { display:block; font-size:13px; font-weight:700; color:#c05a20; margin-bottom:3px; }
+  .alert-text p { font-size:12px; color:#8c5030; line-height:1.6; }
+
+  /* ── INFO BOX ── */
+  .info-row {
+    display:flex; gap:12px; flex-wrap:wrap; padding:14px 16px;
+    border-bottom:1px solid var(--border);
+  }
+  .info-item { display:flex; justify-content:space-between; align-items:center; flex:1; min-width:180px; }
+  .info-label { font-size:12px; color:var(--text3); }
+  .info-val { font-size:16px; font-weight:800; color:var(--text); }
+
+  /* ── SCROLL ── */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg2); }
+  ::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align:center; padding:18px 24px;
+    color:var(--text3); font-size:11px;
+    border-top:1.5px solid var(--border); margin-top:10px;
+    background:var(--white);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:768px){
+    .main { padding:14px; }
+    .charts-grid { grid-template-columns:1fr; }
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:480px){
+    .kpi-grid { grid-template-columns:repeat(2,1fr); }
+    .header-inner { padding:10px 14px; }
+    .main { padding:10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo-badge">🧠</div>
+      <div class="header-title">
+        <h1>ระบบติดตาม SMI อำเภอโกสุมพิสัย</h1>
+        <p>ผู้ป่วยจิตเวชที่มีความรุนแรง • จังหวัดมหาสารคาม</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>อัปเดตล่าสุด</div>
+      <div class="date-badge">ปีงบประมาณ 2569 | ต.ค. 2568 – เม.ย. 2569</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 ภาพรวม</button>
+    <button class="tab-btn" onclick="switchTab('patients',this)">👥 รายชื่อผู้ป่วย</button>
+    <button class="tab-btn" onclick="switchTab('urgency',this)">🚨 ระดับความเร่งด่วน</button>
+    <button class="tab-btn" onclick="switchTab('drugs',this)">💊 สารเสพติด</button>
+    <button class="tab-btn" onclick="switchTab('area',this)">📍 พื้นที่</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════ OVERVIEW ══════════════ -->
+  <div class="section active" id="section-overview">
+
+    <div class="alert-strip">
+      <div class="alert-icon">⚠️</div>
+      <div class="alert-text">
+        <strong>ข้อมูลผู้ป่วย SMI ที่ต้องเฝ้าระวัง</strong>
+        <p>พบผู้ป่วยระดับ <strong>Emergency 8 ราย</strong> และ <strong>Urgency V3 25 ราย</strong> — คิดเป็น 50.8% ของผู้ป่วยทั้งหมด ต้องได้รับการดูแลอย่างเร่งด่วน</p>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--kpi-color:#2a9d8f">
+        <span class="kpi-icon">📋</span>
+        <div class="kpi-value">71</div>
+        <div class="kpi-label">ผู้ป่วยทั้งหมด (รวมไม่นับ)</div>
+        <div class="kpi-sub">นับจริง <span>65 ราย</span> | ไม่นับ 6 ราย</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#e05252">
+        <span class="kpi-icon">🚨</span>
+        <div class="kpi-value">33</div>
+        <div class="kpi-label">ระดับฉุกเฉิน (Emerg. + V3)</div>
+        <div class="kpi-sub">คิดเป็น <span style="color:#e05252">50.8%</span> ของผู้ป่วยทั้งหมด</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#3b9edd">
+        <span class="kpi-icon">👨</span>
+        <div class="kpi-value">60</div>
+        <div class="kpi-label">ผู้ป่วยชาย</div>
+        <div class="kpi-sub">คิดเป็น <span>84.5%</span> ของทั้งหมด</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#c2549a">
+        <span class="kpi-icon">👩</span>
+        <div class="kpi-value">11</div>
+        <div class="kpi-label">ผู้ป่วยหญิง</div>
+        <div class="kpi-sub">คิดเป็น <span style="color:#c2549a">15.5%</span> ของทั้งหมด</div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#3aaf6e">
+        <span class="kpi-icon">💉</span>
+        <div class="kpi-value">58</div>
+        <div class="kpi-label">เกี่ยวข้องสารเสพติด</div>
+        <div class="kpi-sub">ยาบ้าอันดับ 1 <span>47 ราย</span></div>
+      </div>
+      <div class="kpi-card" style="--kpi-color:#e8873a">
+        <span class="kpi-icon">👮</span>
+        <div class="kpi-value">38</div>
+        <div class="kpi-label">ตำรวจนำส่ง</div>
+        <div class="kpi-sub">คิดเป็น <span style="color:#e8873a">58.5%</span> ของช่องทางรับ</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">📈 จำนวนผู้ป่วยรายเดือน</div>
+            <div class="chart-subtitle">ต.ค. 2568 – เม.ย. 2569</div>
+          </div>
+          <div class="chart-badge">7 เดือน</div>
+        </div>
+        <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">⚡ ระดับความเร่งด่วน</div>
+            <div class="chart-subtitle">การจำแนกตาม SMI-V</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="urgencyChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">🎂 กลุ่มวัย</div>
+            <div class="chart-subtitle">การกระจายตามช่วงอายุ</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="ageChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">💊 ประเภทสารเสพติด</div>
+            <div class="chart-subtitle">ผู้ป่วยที่ใช้สารเสพติด</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="drugChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">👫 เพศ</div>
+            <div class="chart-subtitle">สัดส่วนชาย/หญิง</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="genderChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">💼 สถานภาพสมรส</div>
+            <div class="chart-subtitle">ข้อมูลสถานภาพ</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="statusChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ PATIENTS ══════════════ -->
+  <div class="section" id="section-patients">
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">👥 รายชื่อผู้ป่วยทั้งหมด (71 ราย)</div>
+        <input class="search-box" id="searchInput" type="text" placeholder="🔍 ค้นหาชื่อ, ตำบล, กลุ่มวัย...">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ลำดับ</th>
+              <th>วันที่</th>
+              <th>เพศ</th>
+              <th>ชื่อ-สกุล</th>
+              <th>ตำบล</th>
+              <th>กลุ่มวัย</th>
+              <th>ความเร่งด่วน</th>
+              <th>สารเสพติด</th>
+            </tr>
+          </thead>
+          <tbody id="patientTableBody"></tbody>
+        </table>
+      </div>
+      <div class="pagination">
+        <div class="page-info" id="pageInfo"></div>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ URGENCY ══════════════ -->
+  <div class="section" id="section-urgency">
+    <div class="section-title">
+      <div class="section-title-icon">🚨</div>สรุประดับความเร่งด่วน SMI
+    </div>
+
+    <div class="urgency-grid">
+      <div class="urgency-card" style="border-top:4px solid #e05252">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">🔴 ระดับ Emergency</div>
+            <div class="chart-subtitle">ต้องส่งรักษาทันที</div>
+          </div>
+          <span style="background:#fdecea;color:#e05252;border:1px solid #f9c8c8;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">สีแดง</span>
+        </div>
+        <div class="urgency-item">
+          <div class="urgency-dot" style="background:#e05252"></div>
+          <div class="urgency-info">
+            <div class="urgency-name">Emergency V2</div>
+            <div class="urgency-bar-wrap"><div class="urgency-bar" style="background:#e05252;width:75%"></div></div>
+          </div>
+          <div class="urgency-count" style="color:#e05252">6</div>
+        </div>
+        <div class="urgency-item">
+          <div class="urgency-dot" style="background:#c0392b"></div>
+          <div class="urgency-info">
+            <div class="urgency-name">Emergency V3</div>
+            <div class="urgency-bar-wrap"><div class="urgency-bar" style="background:#c0392b;width:25%"></div></div>
+          </div>
+          <div class="urgency-count" style="color:#c0392b">2</div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">รวม Emergency</span>
+          <span style="font-size:22px;font-weight:800;color:#e05252">8 ราย</span>
+        </div>
+      </div>
+
+      <div class="urgency-card" style="border-top:4px solid #e8873a">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">🟠 ระดับ Urgency V3</div>
+            <div class="chart-subtitle">เร่งด่วนมาก</div>
+          </div>
+          <span style="background:#fef3e8;color:#e8873a;border:1px solid #f9dec8;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">สีส้ม</span>
+        </div>
+        <div class="urgency-item">
+          <div class="urgency-dot" style="background:#e8873a"></div>
+          <div class="urgency-info">
+            <div class="urgency-name">Urgency V3</div>
+            <div class="urgency-bar-wrap"><div class="urgency-bar" style="background:#e8873a;width:100%"></div></div>
+          </div>
+          <div class="urgency-count" style="color:#e8873a">25</div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">% ของทั้งหมด</span>
+          <span style="font-size:22px;font-weight:800;color:#e8873a">38.5%</span>
+        </div>
+      </div>
+
+      <div class="urgency-card" style="border-top:4px solid #d4a017">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">🟡 ระดับ Urgency V2</div>
+            <div class="chart-subtitle">เร่งด่วน</div>
+          </div>
+          <span style="background:#fdf6e0;color:#d4a017;border:1px solid #f5e0a0;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">สีเหลือง</span>
+        </div>
+        <div class="urgency-item">
+          <div class="urgency-dot" style="background:#d4a017"></div>
+          <div class="urgency-info">
+            <div class="urgency-name">Urgency V2</div>
+            <div class="urgency-bar-wrap"><div class="urgency-bar" style="background:#d4a017;width:100%"></div></div>
+          </div>
+          <div class="urgency-count" style="color:#d4a017">23</div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">% ของทั้งหมด</span>
+          <span style="font-size:22px;font-weight:800;color:#d4a017">35.4%</span>
+        </div>
+      </div>
+
+      <div class="urgency-card" style="border-top:4px solid #3aaf6e">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">🟢 ระดับ Semi/V1</div>
+            <div class="chart-subtitle">กึ่งเร่งด่วน</div>
+          </div>
+          <span style="background:#e6f7ed;color:#3aaf6e;border:1px solid #b8e8ce;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700">สีเขียว</span>
+        </div>
+        <div class="urgency-item">
+          <div class="urgency-dot" style="background:#3aaf6e"></div>
+          <div class="urgency-info">
+            <div class="urgency-name">Semi-urgency / V1</div>
+            <div class="urgency-bar-wrap"><div class="urgency-bar" style="background:#3aaf6e;width:55%"></div></div>
+          </div>
+          <div class="urgency-count" style="color:#3aaf6e">9</div>
+        </div>
+        <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:12px;color:var(--text3)">% ของทั้งหมด</span>
+          <span style="font-size:22px;font-weight:800;color:#3aaf6e">13.8%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header">
+        <div class="chart-title">📊 สัดส่วนระดับความเร่งด่วน</div>
+      </div>
+      <div class="chart-wrap tall"><canvas id="urgencyDetailChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ══════════════ DRUGS ══════════════ -->
+  <div class="section" id="section-drugs">
+    <div class="section-title">
+      <div class="section-title-icon">💊</div>การวิเคราะห์สารเสพติด
+    </div>
+
+    <div class="drugs-grid">
+      <div class="drug-card">
+        <div class="drug-icon" style="background:#fdecea">💊</div>
+        <div class="drug-info">
+          <div class="drug-name">ยาบ้า (Methamphetamine)</div>
+          <div class="drug-count" style="color:#e05252">47</div>
+          <div class="drug-pct">72.3% ของผู้ป่วย</div>
+        </div>
+      </div>
+      <div class="drug-card">
+        <div class="drug-icon" style="background:#fef3e8">🍺</div>
+        <div class="drug-info">
+          <div class="drug-name">สุรา (Alcohol)</div>
+          <div class="drug-count" style="color:#e8873a">30</div>
+          <div class="drug-pct">46.2% ของผู้ป่วย</div>
+        </div>
+      </div>
+      <div class="drug-card">
+        <div class="drug-icon" style="background:#e6f7ed">🌿</div>
+        <div class="drug-info">
+          <div class="drug-name">กัญชา (Cannabis)</div>
+          <div class="drug-count" style="color:#3aaf6e">8</div>
+          <div class="drug-pct">12.3% ของผู้ป่วย</div>
+        </div>
+      </div>
+      <div class="drug-card">
+        <div class="drug-icon" style="background:#fdf6e0">☕</div>
+        <div class="drug-info">
+          <div class="drug-name">กาแฟ &gt;2 ซอง/วัน</div>
+          <div class="drug-count" style="color:#d4a017">5</div>
+          <div class="drug-pct">7.7% ของผู้ป่วย</div>
+        </div>
+      </div>
+      <div class="drug-card">
+        <div class="drug-icon" style="background:#f0eefb">🌶️</div>
+        <div class="drug-info">
+          <div class="drug-name">กระท่อม</div>
+          <div class="drug-count" style="color:#7c6db5">1</div>
+          <div class="drug-pct">1.5% ของผู้ป่วย</div>
+        </div>
+      </div>
+      <div class="drug-card">
+        <div class="drug-icon" style="background:var(--bg3)">❓</div>
+        <div class="drug-info">
+          <div class="drug-name">ไม่ระบุ/อื่นๆ</div>
+          <div class="drug-count" style="color:var(--text3)">7</div>
+          <div class="drug-pct">10.8% ของผู้ป่วย</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">📊 สัดส่วนสารเสพติด</div></div>
+        <div class="chart-wrap tall"><canvas id="drugPieChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header"><div class="chart-title">📈 ยาบ้า vs สุรา รายเดือน</div></div>
+        <div class="chart-wrap tall"><canvas id="drugTrendChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ AREA ══════════════ -->
+  <div class="section" id="section-area">
+    <div class="section-title">
+      <div class="section-title-icon">📍</div>การกระจายตามพื้นที่
+    </div>
+
+    <div class="sub-grid">
+      <div class="sub-card">
+        <div style="padding:12px 16px;border-bottom:1.5px solid var(--border);font-weight:700;font-size:13px;color:var(--text2);background:var(--cream)">🗺️ จำนวนผู้ป่วยรายตำบล</div>
+        <div class="sub-item"><div class="sub-rank top">1</div><div class="sub-name">ต.หัวขวาง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:100%"></div></div><div class="sub-count">15</div></div>
+        <div class="sub-item"><div class="sub-rank top">2</div><div class="sub-name">ต.วังยาว</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:80%"></div></div><div class="sub-count">12</div></div>
+        <div class="sub-item"><div class="sub-rank top">3</div><div class="sub-name">ต.แพง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:73%"></div></div><div class="sub-count">11</div></div>
+        <div class="sub-item"><div class="sub-rank">4</div><div class="sub-name">ต.เขวาไร่</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:53%"></div></div><div class="sub-count">8</div></div>
+        <div class="sub-item"><div class="sub-rank">5</div><div class="sub-name">ต.เขื่อน</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:47%"></div></div><div class="sub-count">7</div></div>
+        <div class="sub-item"><div class="sub-rank">6</div><div class="sub-name">ต.ดอนกลาง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:33%"></div></div><div class="sub-count">5</div></div>
+        <div class="sub-item"><div class="sub-rank">7</div><div class="sub-name">ต.ยางท่าแจ้ง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:27%"></div></div><div class="sub-count">4</div></div>
+        <div class="sub-item"><div class="sub-rank">8</div><div class="sub-name">ต.หนองบอน</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:20%"></div></div><div class="sub-count">3</div></div>
+        <div class="sub-item"><div class="sub-rank">9</div><div class="sub-name">ต.หนองบัว</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:20%"></div></div><div class="sub-count">3</div></div>
+        <div class="sub-item"><div class="sub-rank">–</div><div class="sub-name">ตำบลอื่นๆ</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:20%"></div></div><div class="sub-count">3</div></div>
+      </div>
+
+      <div class="sub-card">
+        <div style="padding:12px 16px;border-bottom:1.5px solid var(--border);font-weight:700;font-size:13px;color:var(--text2);background:var(--cream)">🏥 ช่องทางรับ & สถานที่รักษา</div>
+        <div class="sub-item"><div class="sub-rank top">1</div><div class="sub-name">ตำรวจนำส่ง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:100%;background:#e05252"></div></div><div class="sub-count">38</div></div>
+        <div class="sub-item"><div class="sub-rank top">2</div><div class="sub-name">ญาติ/มาเอง</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:42%"></div></div><div class="sub-count">16</div></div>
+        <div class="sub-item"><div class="sub-rank">3</div><div class="sub-name">ไม่ระบุ</div><div class="sub-bar-wrap"><div class="sub-bar" style="width:29%"></div></div><div class="sub-count">11</div></div>
+        <div class="info-row">
+          <div class="info-item"><span class="info-label">รพ.โกสุมพิสัย</span><span class="info-val" style="color:var(--teal)">45</span></div>
+          <div class="info-item"><span class="info-label">ส่งต่อ รพ.จิตเวชขอนแก่น</span><span class="info-val" style="color:#e05252">12</span></div>
+        </div>
+        <div class="info-row">
+          <div class="info-item"><span class="info-label">ส่งต่อ รพ.ธัญญารักษ์</span><span class="info-val" style="color:#e8873a">3</span></div>
+          <div class="info-item"><span class="info-label">ส่งต่อ รพ.มหาสารคาม</span><span class="info-val" style="color:#d4a017">5</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-header"><div class="chart-title">📊 จำนวนผู้ป่วยรายตำบล (Top 10)</div></div>
+      <div class="chart-wrap tall"><canvas id="areaChart"></canvas></div>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<div class="footer">
+  ข้อมูล SMI อำเภอโกสุมพิสัย จ.มหาสารคาม | ปีงบประมาณ 2569 | Dashboard เพื่อผู้บริหาร
+</div>
+
+<script>
+/* ═══════════════════════════════
+   DATA
+═══════════════════════════════ */
+const patients = [
+  {no:1,date:'10/12/2568',gender:'หญิง',name:'นาง นิตยาพร...',sub:'ต.หัวขวาง',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'ไม่ระบุ',counted:true},
+  {no:2,date:'14/10/2568',gender:'ชาย',name:'นาย พงษ์พันธ์...',sub:'ต.หนองกุงสวรรค์',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:3,date:'15/10/2568',gender:'ชาย',name:'นาย เฉลิมพงษ์...',sub:'ต.วังยาว',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:4,date:'16/10/2568',gender:'ชาย',name:'นาย สุวัฒน์...',sub:'ต.ดอนกลาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:5,date:'29/10/2568',gender:'หญิง',name:'น.ส. กนกอร วงศ์...',sub:'ต.แพง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:6,date:'29/10/2568',gender:'ชาย',name:'นาย อาทิตย์ ทอง...',sub:'ต.ยางท่าแจ้ง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:7,date:'4/11/2568',gender:'ชาย',name:'นาย ชุมพล ด้าน...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:8,date:'11/11/2568',gender:'ชาย',name:'กิตติพล เย็นใจ...',sub:'ต.ดอนกลาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:'-',date:'15/11/2568',gender:'หญิง',name:'นาง ลำพูน รู้บุญ...',sub:'ต.บ้านนอก(นอกเขต)',age:'ผู้สูงอายุ (60+)',urgency:'Emergency-V2',drug:'ยาบ้า',counted:false},
+  {no:9,date:'18/11/2568',gender:'ชาย',name:'นาย สมบัติ สงคราม...',sub:'ต.โพนงาม',age:'วัยกลางคน (40-59)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:'-',date:'24/11/2568',gender:'หญิง',name:'น.ส. กนกการต์...',sub:'ต.เหล่า(นอกเขต)',age:'วัยกลางคน (40-59)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:false},
+  {no:10,date:'26/11/2568',gender:'ชาย',name:'นาย อำพล เส...',sub:'ต.วังยาว',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:11,date:'26/11/2568',gender:'ชาย',name:'นาย นิรันดร์ ไชย...',sub:'ต.เขวาไร่',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:12,date:'15/12/2568',gender:'ชาย',name:'นาย ณัฐพล เถือน...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:13,date:'23/12/2568',gender:'ชาย',name:'นาย พลากร สุวรรณ...',sub:'ต.เขวาไร่',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:14,date:'23/12/2568',gender:'ชาย',name:'นาย ยอดรักษ์ แข...',sub:'ต.แพง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:15,date:'29/12/2568',gender:'ชาย',name:'นาย สิทธิพงษ์...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:16,date:'5/1/2569',gender:'ชาย',name:'นาย ตะวัน นา...',sub:'ต.เขวาไร่',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:17,date:'4/1/2569',gender:'ชาย',name:'นาย สุบัญชา ดวง...',sub:'ต.ยางท่าแจ้ง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:18,date:'4/1/2569',gender:'ชาย',name:'(ไม่ระบุ) เขื่อน...',sub:'ต.เขื่อน',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:19,date:'20/1/2569',gender:'ชาย',name:'นาย ศุภชราศัย...',sub:'ต.ดอนกลาง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:20,date:'23/1/2569',gender:'ชาย',name:'นาย อาทิตย์ สุวรรณ...',sub:'ต.วังยาว',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:21,date:'14/1/2569',gender:'ชาย',name:'นาย ชรินทร์ ศรีโทะ...',sub:'ต.หนองเหล็ก',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:22,date:'20/1/2569',gender:'ชาย',name:'นาย จักรพรรดิ สุวรรณ...',sub:'ต.วังยาว',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'ยาบ้า',counted:true},
+  {no:23,date:'20/1/2569',gender:'ชาย',name:'นาย ธนศักดิ์ มะโน...',sub:'ต.แกดแก',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:24,date:'23/1/2569',gender:'ชาย',name:'นาย จีระสิทธิ์ อัน...',sub:'ต.เขื่อน',age:'วัยทำงาน (20-39)',urgency:'Emergency-V2',drug:'ยาบ้า',counted:true},
+  {no:25,date:'21/1/2569',gender:'ชาย',name:'ขวัญชัย สีหนู...',sub:'ต.วังยาว',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:26,date:'2/2/2569',gender:'ชาย',name:'นาย ยุทธชัย ดรนา...',sub:'ต.แพง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:27,date:'2/2/2569',gender:'ชาย',name:'นาย อำพล สีชัย...',sub:'ต.หนองเหล็ก',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:28,date:'26/1/2569',gender:'ชาย',name:'นาย ทรนง ยะสา...',sub:'ต.เขวาไร่',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:29,date:'2/2/2569',gender:'ชาย',name:'นาย ณัฐวุฒิ สายหยุด...',sub:'ต.วังยาว',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:30,date:'27/1/2569',gender:'ชาย',name:'นาย กฤษฎากร แก้วยอด...',sub:'ต.หนองเหล็ก',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:31,date:'25/1/2569',gender:'หญิง',name:'น.ส. ชมพูนุท ดวง...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Semi-V2',drug:'ยาบ้า',counted:true},
+  {no:32,date:'3/2/2569',gender:'ชาย',name:'นาย ราชัน บุบผา...',sub:'ต.ดอนกลาง',age:'วัยทำงาน (20-39)',urgency:'Emergency-V3',drug:'ยาบ้า',counted:true},
+  {no:33,date:'13/11/2568',gender:'ชาย',name:'นาย ศราวุฒิ แสน...',sub:'ต.หัวขวาง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:34,date:'4/2/2569',gender:'ชาย',name:'นาย สายันต์ คำภา...',sub:'ต.แพง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:35,date:'2/2/2569',gender:'ชาย',name:'นาย สุรศักดิ์ โพธิ์ศรี...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:36,date:'21/1/2569',gender:'ชาย',name:'นาย อภิวัฒน์ แจ้ง...',sub:'ต.เขาสวนกวาง',age:'วัยทำงาน (20-39)',urgency:'Semi-V2',drug:'ยาบ้า',counted:true},
+  {no:37,date:'13/2/2569',gender:'ชาย',name:'ศุภวัจน์ คำบุญ...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:38,date:'16/2/2569',gender:'ชาย',name:'นาย วีระยุทธ ดวงลดิ...',sub:'ต.หนองบอน',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:39,date:'18/2/2569',gender:'ชาย',name:'นาย เจริญ ศิลป์...',sub:'ต.วังยาว',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า,สุรา',counted:true},
+  {no:40,date:'18/2/2569',gender:'หญิง',name:'น.ส. สมฤทัย ต้น...',sub:'ต.ยางน้อย',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า,สุรา',counted:true},
+  {no:41,date:'20/2/2569',gender:'ชาย',name:'นาย สุชาติ ดวงทา...',sub:'ต.แพง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:42,date:'23/2/2569',gender:'ชาย',name:'นาย สุจินดา ก้าน...',sub:'ต.หนองบัว',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'สุรา',counted:true},
+  {no:43,date:'31/1/2569',gender:'ชาย',name:'สุระชาติ เถื่อนทะ...',sub:'ต.ยางท่าแจ้ง',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'ยาบ้า,สุรา',counted:true},
+  {no:44,date:'23/2/2569',gender:'ชาย',name:'นาย ศักดิ์ดา งาม...',sub:'ต.หัวขวาง',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:45,date:'1/3/2569',gender:'หญิง',name:'รจนา ดวงชาญ...',sub:'ต.เขวาไร่',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'กาแฟ>2ซอง',counted:true},
+  {no:46,date:'12/4/2569',gender:'ชาย',name:'นาย ปริวัตร ดวง...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:47,date:'27/2/2569',gender:'ชาย',name:'นาย ณัฐกรณ์ โพธิ์...',sub:'ต.เขื่อน',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'กัญชา',counted:true},
+  {no:48,date:'2/3/2569',gender:'ชาย',name:'นาย พรทวี นาขี...',sub:'ต.หนองกุงสวรรค์',age:'วัยกลางคน (40-59)',urgency:'Urgency-V3',drug:'ยาบ้า,สุรา',counted:true},
+  {no:49,date:'1/3/2569',gender:'ชาย',name:'เศกศักดิ์ สีพล...',sub:'ต.เขื่อน',age:'วัยกลางคน (40-59)',urgency:'Emergency-V2',drug:'ยาบ้า,สุรา,กัญชา',counted:true},
+  {no:50,date:'2/3/2569',gender:'ชาย',name:'นาย พัสกร สิงห์วงค์...',sub:'ต.เขื่อน',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า,สุรา',counted:true},
+  {no:51,date:'9/3/2569',gender:'ชาย',name:'นาย สุรเดช หีบแก้ว...',sub:'ต.แหใต้',age:'วัยทำงาน (20-39)',urgency:'Emergency-V2',drug:'ยาบ้า',counted:true},
+  {no:'-',date:'9/3/2569',gender:'ชาย',name:'นเรศ ผางลิ...',sub:'ต.เลิงใต้',age:'วัยกลางคน (40-59)',urgency:'Semi-V3',drug:'ยาบ้า',counted:false},
+  {no:52,date:'10/3/2569',gender:'ชาย',name:'บุญชู ตาลทอง...',sub:'ต.แพง',age:'วัยทำงาน (20-39)',urgency:'Emergency-V2',drug:'ยาบ้า',counted:true},
+  {no:53,date:'11/3/2569',gender:'ชาย',name:'นาย คงฤทธิ์ แพงเวียง...',sub:'ต.ยางท่าแจ้ง',age:'วัยกลางคน (40-59)',urgency:'Emergency-V3',drug:'ยาบ้า',counted:true},
+  {no:54,date:'12/3/2569',gender:'ชาย',name:'นาย ราชัน บุบผา...',sub:'ต.ดอนกลาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:55,date:'12/3/2569',gender:'ชาย',name:'นาย มงคล โทษา...',sub:'ต.แกดแก',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:56,date:'12/3/2569',gender:'ชาย',name:'นาย โยทิน อุดน้อย...',sub:'ต.แพง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:57,date:'19/3/2569',gender:'ชาย',name:'นาย ใหม่ ศิริวิ...',sub:'ต.หนองบัว',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'ยาบ้า,สุรา',counted:true},
+  {no:58,date:'22/3/2569',gender:'ชาย',name:'นาย สมคิด ถ้าอาจมนา...',sub:'ต.แพง',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'สุรา',counted:true},
+  {no:59,date:'22/3/2569',gender:'ชาย',name:'นาย พรีวัส อ้าย...',sub:'ต.แพง',age:'วัยรุ่น (1-19)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:60,date:'22/3/2569',gender:'ชาย',name:'นาย เฉลย สีลาย...',sub:'ต.เขื่อน',age:'วัยกลางคน (40-59)',urgency:'Semi-V2',drug:'สุรา',counted:true},
+  {no:'-',date:'23/3/2569',gender:'หญิง',name:'น.ส. ขวัญจิรา ศิริ...',sub:'ต.โพนงาม',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'กัญชา',counted:false},
+  {no:61,date:'25/3/2569',gender:'ชาย',name:'นาย ณรงค์ศักดิ์...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า,สุรา,กัญชา',counted:true},
+  {no:62,date:'25/3/2569',gender:'ชาย',name:'นาย สิทธิชัย ดอกจัน...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Emergency-V2',drug:'ยาบ้า',counted:true},
+  {no:63,date:'25/3/2569',gender:'ชาย',name:'นาย สนอง กวาดนอก...',sub:'ต.หัวขวาง',age:'วัยกลางคน (40-59)',urgency:'Semi-V3',drug:'ยาบ้า',counted:true},
+  {no:64,date:'30/3/2569',gender:'ชาย',name:'นาย บุญนิธิ นิจรมย์...',sub:'ต.แพง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:65,date:'30/3/2569',gender:'ชาย',name:'นาย สุระกิจ สาระโม...',sub:'ต.แหใต้',age:'วัยรุ่น (1-19)',urgency:'Semi-V2',drug:'สุรา',counted:true},
+  {no:66,date:'17/4/2569',gender:'ชาย',name:'นาย ปุรกิตต์ ผึ้งทอง...',sub:'ต.เขวาไร่',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:67,date:'17/4/2569',gender:'ชาย',name:'ธรรมนูญ บุญศิริ...',sub:'ต.เลิงใต้',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+  {no:'-',date:'17/4/2569',gender:'ชาย',name:'โชค พวัตทะ...',sub:'ต.หนองบัว',age:'วัยทำงาน (20-39)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:false},
+  {no:68,date:'17/4/2569',gender:'ชาย',name:'พันธ์มูล มณี...',sub:'ต.แพง',age:'ผู้สูงอายุ (60+)',urgency:'Urgency-V3',drug:'ยาบ้า',counted:true},
+  {no:69,date:'20/4/2569',gender:'ชาย',name:'นาย วัฒนา ทำดี...',sub:'ต.หนองบอน',age:'วัยรุ่น (1-19)',urgency:'Semi-V2',drug:'อื่นๆ',counted:true},
+  {no:70,date:'20/4/2569',gender:'ชาย',name:'วงศธร ศิริโอด...',sub:'ต.วังยาว',age:'วัยทำงาน (20-39)',urgency:'Semi-V2',drug:'สุรา',counted:true},
+  {no:71,date:'20/4/2569',gender:'ชาย',name:'ภานุ จันทร์สูญ...',sub:'ต.หัวขวาง',age:'วัยทำงาน (20-39)',urgency:'Urgency-V2',drug:'ยาบ้า',counted:true},
+];
+
+/* ═══════════════════════════════
+   CHART CONFIG (light theme)
+═══════════════════════════════ */
+const C = {
+  teal:'#2a9d8f', sky:'#3b9edd', green:'#3aaf6e', mint:'#52c4a0',
+  red:'#e05252', orange:'#e8873a', yellow:'#d4a017', purple:'#7c6db5',
+  text:'#3d6b5e', grid:'rgba(42,157,143,0.10)'
+};
+
+const baseScales = {
+  x:{ ticks:{color:C.text,font:{family:'Sarabun',size:12}}, grid:{color:C.grid} },
+  y:{ ticks:{color:C.text,font:{family:'Sarabun',size:12}}, grid:{color:C.grid} }
+};
+
+// Trend
+new Chart(document.getElementById('trendChart'),{
+  type:'bar',
+  data:{
+    labels:['ต.ค.68','พ.ย.68','ธ.ค.68','ม.ค.69','ก.พ.69','มี.ค.69','เม.ย.69'],
+    datasets:[{
+      label:'จำนวนผู้ป่วย',
+      data:[6,5,5,13,11,17,8],
+      backgroundColor:['#c8e8e0','#b8ddd4','#b8ddd4','#f5c9a0','#f5c9a0','#f5a8a8','#b8ddd4'],
+      borderColor:[C.teal,C.teal,C.teal,C.orange,C.orange,C.red,C.teal],
+      borderWidth:2, borderRadius:6
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:baseScales}
+});
+
+// Urgency donut
+new Chart(document.getElementById('urgencyChart'),{
+  type:'doughnut',
+  data:{
+    labels:['Emergency','Urgency V3','Urgency V2','Semi/V1'],
+    datasets:[{data:[8,25,23,9],
+      backgroundColor:['#f5a8a8','#f9d0a8','#f9ecb0','#a8dfc4'],
+      borderColor:[C.red,C.orange,C.yellow,C.green], borderWidth:2
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'60%',
+    plugins:{legend:{position:'right',labels:{color:C.text,font:{family:'Sarabun',size:11},padding:10}}}
+  }
+});
+
+// Age pie
+new Chart(document.getElementById('ageChart'),{
+  type:'pie',
+  data:{
+    labels:['วัยทำงาน (20-39)','วัยกลางคน (40-59)','วัยรุ่น (1-19)','ผู้สูงอายุ (60+)'],
+    datasets:[{data:[38,27,3,3],
+      backgroundColor:['#b0d8f5','#c8b8e8','#a8dfc4','#f9d0a8'],
+      borderColor:[C.sky,C.purple,C.green,C.orange], borderWidth:2
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{color:C.text,font:{family:'Sarabun',size:11},padding:8}}}
+  }
+});
+
+// Drug bar
+new Chart(document.getElementById('drugChart'),{
+  type:'bar',
+  data:{
+    labels:['ยาบ้า','สุรา','กัญชา','กาแฟ>2ซอง','กระท่อม','อื่นๆ'],
+    datasets:[{
+      label:'จำนวน',
+      data:[47,30,8,5,1,7],
+      backgroundColor:['#f5a8a8','#f9d0a8','#a8dfc4','#f9ecb0','#d4c8f0','#c8d8e4'],
+      borderColor:[C.red,C.orange,C.green,C.yellow,C.purple,'#7a9db0'],
+      borderWidth:1.5, borderRadius:6
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false}},scales:baseScales
+  }
+});
+
+// Gender donut
+new Chart(document.getElementById('genderChart'),{
+  type:'doughnut',
+  data:{
+    labels:['ชาย','หญิง'],
+    datasets:[{data:[60,11],
+      backgroundColor:['#b0d8f5','#f9c0e0'],
+      borderColor:[C.sky,'#c2549a'], borderWidth:3
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
+    plugins:{legend:{position:'bottom',labels:{color:C.text,font:{family:'Sarabun',size:12}}}}
+  }
+});
+
+// Status
+new Chart(document.getElementById('statusChart'),{
+  type:'bar',
+  data:{
+    labels:['โสด','สมรส','แยกกัน','หย่า/หม้าย'],
+    datasets:[{
+      label:'สถานภาพ',
+      data:[42,18,8,3],
+      backgroundColor:['#c8e8e0','#b0d8f5','#d4c8f0','#f9d0a8'],
+      borderColor:[C.teal,C.sky,C.purple,C.orange],
+      borderWidth:1.5, borderRadius:6
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},scales:baseScales
+  }
+});
+
+// Urgency detail
+new Chart(document.getElementById('urgencyDetailChart'),{
+  type:'bar',
+  data:{
+    labels:['Emergency (ฉุกเฉิน)','Urgency V3 (เร่งด่วนมาก)','Urgency V2 (เร่งด่วน)','Semi/V1 (กึ่งเร่งด่วน)'],
+    datasets:[{
+      label:'จำนวน (ราย)',
+      data:[8,25,23,9],
+      backgroundColor:['#f5a8a8','#f9d0a8','#f9ecb0','#a8dfc4'],
+      borderColor:[C.red,C.orange,C.yellow,C.green],
+      borderWidth:2, borderRadius:8
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},scales:baseScales
+  }
+});
+
+// Drug pie
+new Chart(document.getElementById('drugPieChart'),{
+  type:'doughnut',
+  data:{
+    labels:['ยาบ้า (47)','สุรา (30)','กัญชา (8)','กาแฟ>2ซอง (5)','กระท่อม (1)','อื่นๆ (7)'],
+    datasets:[{data:[47,30,8,5,1,7],
+      backgroundColor:['#f5a8a8','#f9d0a8','#a8dfc4','#f9ecb0','#d4c8f0','#c8d8e4'],
+      borderColor:[C.red,C.orange,C.green,C.yellow,C.purple,'#7a9db0'],
+      borderWidth:2
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{position:'right',labels:{color:C.text,font:{family:'Sarabun',size:11},padding:8}}}
+  }
+});
+
+// Drug trend
+new Chart(document.getElementById('drugTrendChart'),{
+  type:'line',
+  data:{
+    labels:['ต.ค.68','พ.ย.68','ธ.ค.68','ม.ค.69','ก.พ.69','มี.ค.69','เม.ย.69'],
+    datasets:[
+      {label:'ยาบ้า',data:[5,3,4,10,8,13,4],borderColor:C.red,backgroundColor:'rgba(224,82,82,0.12)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:C.red},
+      {label:'สุรา',data:[0,1,1,4,5,8,2],borderColor:C.orange,backgroundColor:'rgba(232,135,58,0.12)',tension:.4,fill:true,pointRadius:4,pointBackgroundColor:C.orange}
+    ]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:C.text,font:{family:'Sarabun',size:12}}}},scales:baseScales
+  }
+});
+
+// Area chart
+new Chart(document.getElementById('areaChart'),{
+  type:'bar',
+  data:{
+    labels:['ต.หัวขวาง','ต.วังยาว','ต.แพง','ต.เขวาไร่','ต.เขื่อน','ต.ดอนกลาง','ต.ยางท่าแจ้ง','ต.หนองบอน','ต.หนองบัว','อื่นๆ'],
+    datasets:[{
+      label:'จำนวนผู้ป่วย',
+      data:[15,12,11,8,7,5,4,3,3,3],
+      backgroundColor:['#f5a8a8','#f9d0a8','#f9ecb0','#b0d8f5','#c8e8e0','#d4c8f0','#a8e8d8','#b8e8d0','#c8ece0','#c8d8e4'],
+      borderColor:[C.red,C.orange,C.yellow,C.sky,C.teal,C.purple,C.mint,C.green,C.green,'#7a9db0'],
+      borderWidth:1.5, borderRadius:6
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false}},scales:baseScales
+  }
+});
+
+/* ═══════════════════════════════
+   TABLE
+═══════════════════════════════ */
+function urgencyClass(u){
+  if(u.includes('Emergency')) return 'u-emergency';
+  if(u.includes('V3')&&u.includes('Urgency')) return 'u-urgency3';
+  if(u.includes('V2')&&u.includes('Urgency')) return 'u-urgency2';
+  if(u.includes('V1')||u.includes('Semi')) return 'u-semi';
+  return 'u-urgency1';
+}
+function urgencyLabel(u){
+  if(u.includes('Emergency')) return '🔴 '+u;
+  if(u.includes('V3')&&u.includes('Urgency')) return '🟠 '+u;
+  if(u.includes('V2')&&u.includes('Urgency')) return '🟡 '+u;
+  return '🟢 '+u;
+}
+
+let currentPage=1;
+const rowsPerPage=12;
+let filteredData=[...patients];
+
+function renderTable(){
+  const start=(currentPage-1)*rowsPerPage;
+  const end=start+rowsPerPage;
+  const tbody=document.getElementById('patientTableBody');
+  tbody.innerHTML='';
+  filteredData.slice(start,end).forEach(p=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><span class="no-badge">${p.no}</span></td>
+      <td style="color:var(--text3);font-size:12px">${p.date}</td>
+      <td><span class="gender-badge ${p.gender==='ชาย'?'gender-m':'gender-f'}">${p.gender}</span></td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.name}</td>
+      <td style="font-size:12px;color:var(--text2)">${p.sub}</td>
+      <td><span class="age-group-pill">${p.age}</span></td>
+      <td><span class="urgency-pill ${urgencyClass(p.urgency)}">${urgencyLabel(p.urgency)}</span></td>
+      <td style="font-size:12px;color:var(--text2)">${p.drug}</td>
+    `;
+    if(!p.counted) tr.style.opacity='.5';
+    tbody.appendChild(tr);
+  });
+  const total=filteredData.length;
+  const totalPages=Math.ceil(total/rowsPerPage);
+  document.getElementById('pageInfo').textContent=`แสดง ${start+1}–${Math.min(end,total)} จาก ${total} รายการ`;
+  const pageBtns=document.getElementById('pageBtns');
+  pageBtns.innerHTML='';
+  for(let i=1;i<=totalPages;i++){
+    const btn=document.createElement('button');
+    btn.className='page-btn'+(i===currentPage?' active':'');
+    btn.textContent=i;
+    btn.onclick=()=>{currentPage=i;renderTable()};
+    pageBtns.appendChild(btn);
+  }
+}
+
+document.getElementById('searchInput').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  filteredData=patients.filter(p=>
+    p.name.toLowerCase().includes(q)||p.sub.toLowerCase().includes(q)||
+    p.age.toLowerCase().includes(q)||p.urgency.toLowerCase().includes(q)||
+    p.drug.toLowerCase().includes(q)
+  );
+  currentPage=1; renderTable();
+});
+
+/* ═══════════════════════════════
+   TABS
+═══════════════════════════════ */
+function switchTab(tab,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  el.classList.add('active');
+  if(tab==='patients') renderTable();
+}
+
+renderTable();
+</script>
+</body>
+</html>
