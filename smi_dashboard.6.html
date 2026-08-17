@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard SMI - อ.โกสุมพิสัย ปีงบ 2569</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#f0f4f8;--white:#fff;--card:#fff;--border:#dde3ed;--border2:#c8d3e3;
+  --blue:#2563eb;--blue-pale:#eff6ff;
+  --q1:#7c3aed;--q1p:#f5f3ff;--q2:#0369a1;--q2p:#e0f2fe;
+  --q3:#047857;--q3p:#ecfdf5;--q4:#b45309;--q4p:#fffbeb;
+  --red:#dc2626;--orange:#ea580c;--yellow:#ca8a04;--green:#16a34a;
+  --text:#1e293b;--text2:#475569;--text3:#94a3b8;
+  --hosp:#0369a1;--hospp:#e0f2fe;
+  --pol:#7c3aed;--polp:#f5f3ff;
+  --adm:#047857;--admp:#ecfdf5;
+  --loc:#b45309;--locp:#fffbeb;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.header{background:linear-gradient(135deg,#1e3a6e 0%,#1d4ed8 60%,#0369a1 100%);box-shadow:0 4px 20px rgba(30,58,110,.25);position:sticky;top:0;z-index:100;}
+.header-inner{max-width:1600px;margin:0 auto;padding:13px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.logo{width:44px;height:44px;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.3);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+.hd-left{display:flex;align-items:center;gap:12px;}
+.hd-t h1{font-size:clamp(12px,2vw,17px);font-weight:800;color:#fff;}
+.hd-t p{font-size:11px;color:rgba(255,255,255,.7);margin-top:2px;}
+.hd-right{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.hbadge{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);}
+.hbadge.live{background:rgba(16,185,129,.25);border-color:rgba(16,185,129,.5);color:#6ee7b7;}
+.ldot{display:inline-block;width:6px;height:6px;background:#34d399;border-radius:50%;margin-right:4px;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.upload-fab{position:fixed;top:70px;right:16px;z-index:200;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:none;border-radius:12px;padding:10px 16px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(22,163,74,.5);display:flex;align-items:center;gap:7px;transition:all .2s;}
+.upload-fab:hover{transform:translateY(-2px);}
+.pulse{width:8px;height:8px;background:#fff;border-radius:50%;animation:blink 1.5s infinite;}
+.nav-wrap{background:var(--white);border-bottom:2px solid var(--border);box-shadow:0 2px 8px rgba(0,0,0,.06);overflow-x:auto;scrollbar-width:none;}
+.nav-wrap::-webkit-scrollbar{display:none;}
+.nav-inner{max-width:1600px;margin:0 auto;padding:0 16px;display:flex;gap:1px;}
+.tab-btn{padding:10px 13px;border:none;background:none;color:var(--text2);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;transition:all .2s;}
+.tab-btn:hover{color:var(--blue);background:var(--blue-pale);}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue);background:var(--blue-pale);}
+.tab-btn.tq1.active{color:var(--q1);border-bottom-color:var(--q1);background:var(--q1p);}
+.tab-btn.tq2.active{color:var(--q2);border-bottom-color:var(--q2);background:var(--q2p);}
+.tab-btn.tq3.active{color:var(--q3);border-bottom-color:var(--q3);background:var(--q3p);}
+.tab-btn.tq4.active{color:var(--q4);border-bottom-color:var(--q4);background:var(--q4p);}
+.main{max-width:1600px;margin:0 auto;padding:18px;}
+.section{display:none;}.section.active{display:block;}
+.up-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;}
+.up-overlay.open{display:flex;}
+.up-modal{background:#fff;border-radius:20px;padding:28px;max-width:460px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.up-modal h2{font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px;}
+.drop-zone{border:2px dashed #86efac;background:#f0fdf4;border-radius:14px;padding:28px;text-align:center;cursor:pointer;margin-bottom:14px;}
+.drop-zone:hover{border-color:#16a34a;background:#dcfce7;}
+.dz-ico{font-size:38px;margin-bottom:7px;}
+.dz-txt{font-size:13px;font-weight:700;color:#15803d;margin-bottom:3px;}
+.dz-s{font-size:11px;color:var(--text3);}
+.up-note{background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:11px 13px;font-size:11px;color:#92400e;line-height:1.7;margin-bottom:12px;}
+.up-note strong{display:block;font-size:12px;margin-bottom:3px;color:#b45309;}
+.btn-c{width:100%;padding:9px;background:#f1f5f9;color:var(--text2);border:none;border-radius:10px;font-family:'Sarabun',sans-serif;font-size:13px;cursor:pointer;font-weight:600;}
+.qr-fab{position:fixed;bottom:20px;right:16px;z-index:200;background:var(--blue);color:#fff;border:none;border-radius:50px;padding:11px 18px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(37,99,235,.4);display:flex;align-items:center;gap:7px;transition:transform .2s;}
+.qr-fab:hover{transform:translateY(-2px);}
+.qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;display:none;align-items:center;justify-content:center;}
+.qr-overlay.open{display:flex;}
+.qr-modal{background:#fff;border-radius:20px;padding:24px;max-width:450px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.3);}
+.qr-modal h2{font-size:15px;font-weight:800;margin-bottom:3px;}
+.qr-sub{font-size:11px;color:var(--text2);margin-bottom:14px;}
+.qr-box{display:flex;justify-content:center;margin-bottom:14px;}
+.link-row{display:flex;gap:7px;margin-bottom:12px;}
+.link-inp{flex:1;border:1.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text);background:#f8fafc;outline:none;}
+.copy-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.msg-tabs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.msg-tab{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--border2);background:#f8fafc;color:var(--text2);}
+.msg-tab.active{background:var(--blue-pale);color:var(--blue);border-color:var(--blue);}
+.msg-box{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:10px;font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:8px;white-space:pre-wrap;max-height:130px;overflow:auto;}
+.msg-copy-btn{width:100%;padding:7px;background:var(--green);color:#fff;border:none;border-radius:9px;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:7px;}
+.alert-bar{display:flex;gap:11px;align-items:flex-start;background:#fff5f5;border:1px solid #fecaca;border-left:4px solid var(--red);border-radius:12px;padding:12px 15px;margin-bottom:16px;}
+.alert-bar strong{display:block;font-size:13px;font-weight:700;color:var(--red);margin-bottom:2px;}
+.alert-bar p{font-size:11px;color:var(--text2);line-height:1.6;}
+.alert-bar b{color:var(--red);}
+.new-badge{display:inline-block;background:#dcfce7;color:#15803d;border:1px solid #86efac;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:5px;}
+.q-banner{display:flex;align-items:center;gap:12px;border-radius:13px;padding:13px 16px;margin-bottom:16px;border-left:5px solid;}
+.q-banner.q1{background:var(--q1p);border-color:var(--q1);}
+.q-banner.q2{background:var(--q2p);border-color:var(--q2);}
+.q-banner.q3{background:var(--q3p);border-color:var(--q3);}
+.q-banner.q4{background:var(--q4p);border-color:var(--q4);}
+.q-banner-text h2{font-size:14px;font-weight:800;}
+.q1 .q-banner-text h2{color:var(--q1);}
+.q2 .q-banner-text h2{color:var(--q2);}
+.q3 .q-banner-text h2{color:var(--q3);}
+.q4 .q-banner-text h2{color:var(--q4);}
+.q-banner-text p{font-size:11px;margin-top:2px;opacity:.7;}
+.q-chips{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+.q-chip{padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;background:#fff;border:2px solid;}
+.q1 .q-chip{border-color:var(--q1);color:var(--q1);}
+.q2 .q-chip{border-color:var(--q2);color:var(--q2);}
+.q3 .q-chip{border-color:var(--q3);color:var(--q3);}
+.q4 .q-chip{border-color:var(--q4);color:var(--q4);}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:10px;margin-bottom:16px;}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px;box-shadow:0 1px 4px rgba(0,0,0,.05);position:relative;overflow:hidden;}
+.kpi-card::after{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--kpi-top,var(--blue));border-radius:13px 13px 0 0;}
+.kpi-icon{font-size:20px;margin-bottom:5px;display:block;}
+.kpi-val{font-size:clamp(22px,3vw,32px);font-weight:800;color:var(--text);line-height:1;}
+.kpi-lbl{font-size:11px;color:var(--text2);margin:4px 0 7px;font-weight:500;line-height:1.4;}
+.kpi-sub{font-size:10px;color:var(--text3);padding-top:5px;border-top:1px solid var(--border);}
+.kpi-sub b{color:var(--blue);}
+.net-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:11px;margin-bottom:16px;}
+.net-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;border-top:4px solid;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.net-card.h{border-top-color:var(--hosp);}
+.net-card.p{border-top-color:var(--pol);}
+.net-card.a{border-top-color:var(--adm);}
+.net-card.l{border-top-color:var(--loc);}
+.net-num{font-size:32px;font-weight:800;line-height:1;}
+.h .net-num{color:var(--hosp);}.p .net-num{color:var(--pol);}.a .net-num{color:var(--adm);}.l .net-num{color:var(--loc);}
+.net-lbl{font-size:12px;font-weight:700;color:var(--text);margin:4px 0 5px;}
+.net-sub{font-size:10px;color:var(--text3);border-top:1px solid var(--border);padding-top:5px;}
+.charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:13px;margin-bottom:16px;}
+.chart-card{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.chart-card.wide{grid-column:1/-1;}
+.chart-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;}
+.chart-title{font-size:13px;font-weight:700;color:var(--text);}
+.chart-sub{font-size:10px;color:var(--text3);margin-top:1px;}
+.chart-wrap{position:relative;height:185px;}
+.chart-wrap.tall{height:250px;}
+.sec-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:7px;}
+.table-card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);margin-bottom:16px;}
+.table-hdr{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;background:#f8fafc;}
+.table-title{font-size:13px;font-weight:700;color:var(--text);}
+.search-box{background:var(--white);border:1.5px solid var(--border2);border-radius:8px;padding:5px 11px;color:var(--text);font-family:'Sarabun',sans-serif;font-size:12px;outline:none;min-width:150px;}
+.search-box:focus{border-color:var(--blue);}
+select.fsel{background:var(--white);border:1.5px solid var(--border2);border-radius:8px;padding:5px 8px;font-family:'Sarabun',sans-serif;font-size:11px;color:var(--text);outline:none;cursor:pointer;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead tr{background:#f8fafc;}
+thead th{padding:7px 8px;text-align:left;font-weight:700;color:var(--text2);font-size:10px;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;border-bottom:2px solid var(--border2);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:hover{background:var(--blue-pale);}
+tbody tr.nr{background:#f0fdf4;}
+tbody td{padding:6px 8px;color:var(--text);vertical-align:middle;}
+.nb{background:#f1f5f9;border-radius:5px;padding:1px 5px;font-weight:700;font-size:10px;color:var(--text2);}
+.gm{background:#dbeafe;color:#1d4ed8;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;}
+.gf{background:#fce7f3;color:#be185d;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;}
+.u-pill{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;border:1px solid;}
+.u-r{background:#fef2f2;color:#dc2626;border-color:#fca5a5;}
+.u-o{background:#fff7ed;color:#c2410c;border-color:#fdba74;}
+.u-y{background:#fefce8;color:#a16207;border-color:#fde047;}
+.u-g{background:#f0fdf4;color:#15803d;border-color:#86efac;}
+.qt{display:inline-block;padding:1px 6px;border-radius:5px;font-size:10px;font-weight:700;}
+.Q1{background:#ede9fe;color:#6d28d9;}.Q2{background:#e0f2fe;color:#0369a1;}
+.Q3{background:#dcfce7;color:#15803d;}.Q4{background:#fffbeb;color:#b45309;}
+.net-pill{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;}
+.nb-h{background:var(--hospp);color:var(--hosp);border-color:#7dd3fc;}
+.nb-p{background:var(--polp);color:var(--pol);border-color:#c4b5fd;}
+.nb-a{background:var(--admp);color:var(--adm);border-color:#6ee7b7;}
+.nb-l{background:var(--locp);color:var(--loc);border-color:#fcd34d;}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;}
+.dy{background:#10b981;}.dn{background:#e2e8f0;border:1px solid #cbd5e1;}
+.pagination{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-top:1px solid var(--border);background:#f8fafc;flex-wrap:wrap;gap:6px;}
+.page-info{font-size:11px;color:var(--text3);}
+.page-btns{display:flex;gap:3px;flex-wrap:wrap;}
+.page-btn{background:var(--white);border:1.5px solid var(--border2);color:var(--text2);width:26px;height:26px;border-radius:6px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'Sarabun',sans-serif;font-weight:600;}
+.page-btn:hover{background:var(--blue-pale);border-color:var(--blue);color:var(--blue);}
+.page-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:11px;margin-bottom:16px;}
+.cmp-card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.cmp-hdr{padding:9px 13px;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:space-between;}
+.q1h{background:var(--q1p);color:var(--q1);border-bottom:2px solid #c4b5fd;}
+.q2h{background:var(--q2p);color:var(--q2);border-bottom:2px solid #7dd3fc;}
+.q3h{background:var(--q3p);color:var(--q3);border-bottom:2px solid #6ee7b7;}
+.q4h{background:var(--q4p);color:var(--q4);border-bottom:2px solid #fcd34d;}
+.cmp-num{font-size:20px;font-weight:800;}
+.cmp-row{display:flex;justify-content:space-between;padding:6px 13px;border-bottom:1px solid var(--border);font-size:11px;}
+.cmp-row:last-child{border-bottom:none;}
+.cmp-row span:first-child{color:var(--text2);}
+.cmp-row span:last-child{font-weight:700;}
+.area-card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.area-item{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid var(--border);gap:7px;}
+.area-item:last-child{border-bottom:none;}
+.area-item:hover{background:var(--blue-pale);}
+.rnk{width:20px;height:20px;border-radius:5px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text3);flex-shrink:0;}
+.rnk.g{background:#fef3c7;color:#b45309;}.rnk.s{background:#f1f5f9;color:#475569;}.rnk.b{background:#ffedd5;color:#9a3412;}
+.area-name{flex:1;font-size:12px;font-weight:500;}
+.bw{width:75px;height:4px;background:#f1f5f9;border-radius:2px;overflow:hidden;}
+.bf{height:100%;border-radius:2px;background:#3b82f6;}
+.area-cnt{font-size:14px;font-weight:800;color:var(--text);min-width:22px;text-align:right;}
+.imc-badge{display:inline-block;background:#fef3c7;color:#b45309;border:1px solid #fcd34d;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;}
+.footer{text-align:center;padding:13px;color:var(--text3);font-size:10px;border-top:1px solid var(--border);margin-top:10px;background:var(--white);}
+@media(max-width:768px){.main{padding:10px;}.charts-grid{grid-template-columns:1fr;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.q-chips{display:none;}.upload-fab{top:auto;bottom:70px;}}
+@media(max-width:480px){.kpi-grid{grid-template-columns:1fr 1fr;}.main{padding:8px;}}
+::-webkit-scrollbar{width:4px;height:4px;}::-webkit-scrollbar-track{background:#f1f5f9;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="hd-left">
+      <div class="logo">🧠</div>
+      <div class="hd-t">
+        <h1>ระบบติดตาม SMI อำเภอโกสุมพิสัย จ.มหาสารคาม</h1>
+        <p>ผู้ป่วยจิตเวชที่มีความรุนแรง • ปีงบ 2569 (1 ต.ค. 68 – 30 ก.ย. 69) • ข้อมูล ณ 13 ส.ค. 2569</p>
+      </div>
+    </div>
+    <div class="hd-right">
+      <div class="hbadge live"><span class="ldot"></span>อัปเดต 13 ส.ค. 69</div>
+      <div class="hbadge">📊 130 ราย</div>
+    </div>
+  </div>
+</div>
+
+<button class="upload-fab" onclick="document.getElementById('upOverlay').classList.add('open')">
+  <span class="pulse"></span> 📂 อัปโหลดข้อมูลใหม่
+</button>
+
+<div class="nav-wrap">
+  <div class="nav-inner">
+    <button class="tab-btn active" onclick="sw('overview',this)">📊 ภาพรวม</button>
+    <button class="tab-btn" onclick="sw('network',this)">🌐 เครือข่าย</button>
+    <button class="tab-btn tq1" onclick="sw('q1',this)">🟣 Q1 (18)</button>
+    <button class="tab-btn tq2" onclick="sw('q2',this)">🔵 Q2 (53)</button>
+    <button class="tab-btn tq3" onclick="sw('q3',this)">🟢 Q3 (37)</button>
+    <button class="tab-btn tq4" onclick="sw('q4',this)">🟡 Q4 (22)</button>
+    <button class="tab-btn" onclick="sw('compare',this)">📐 เปรียบเทียบ</button>
+    <button class="tab-btn" onclick="sw('patients',this)">👥 รายชื่อ (130)</button>
+    <button class="tab-btn" onclick="sw('area',this)">📍 พื้นที่</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- OVERVIEW -->
+<div class="section active" id="section-overview">
+  <div class="alert-bar">
+    <div style="font-size:20px;flex-shrink:0">⚠️</div>
+    <div>
+      <strong>สรุปสถานการณ์ SMI อ.โกสุมพิสัย ณ 13 ส.ค. 2569 — ผู้ป่วยทั้งหมด <span class="new-badge">🆕 130 ราย</span></strong>
+      <p>OAS3 แดง <b>20 ราย (15.4%)</b> • OAS2 ส้ม <b>71 ราย (54.6%)</b> รวม 70.0% ต้องดูแลเร่งด่วน | ยาบ้าตัวกระตุ้นหลัก <b>93 ราย (71.5%)</b> | ตำรวจรายงาน 64 ราย • สาธารณสุข 58 ราย • ปกครอง 4 ราย • ท้องถิ่น 4 ราย</p>
+    </div>
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kpi-top:#2563eb"><span class="kpi-icon">📋</span><div class="kpi-val">130</div><div class="kpi-lbl">ผู้ป่วยทั้งหมด</div><div class="kpi-sub">ปีงบ 2569 | ต.ค.68–ก.ย.69</div></div>
+    <div class="kpi-card" style="--kpi-top:#dc2626"><span class="kpi-icon">🔴</span><div class="kpi-val">20</div><div class="kpi-lbl">OAS3 แดง (Emergency)</div><div class="kpi-sub"><b>15.4%</b> ของผู้ป่วยทั้งหมด</div></div>
+    <div class="kpi-card" style="--kpi-top:#ea580c"><span class="kpi-icon">🟠</span><div class="kpi-val">71</div><div class="kpi-lbl">OAS2 ส้ม (Urgency)</div><div class="kpi-sub"><b>54.6%</b> ของผู้ป่วยทั้งหมด</div></div>
+    <div class="kpi-card" style="--kpi-top:#ca8a04"><span class="kpi-icon">🟡</span><div class="kpi-val">35</div><div class="kpi-lbl">OAS1 เหลือง (Semi)</div><div class="kpi-sub"><b>26.9%</b> ของผู้ป่วยทั้งหมด</div></div>
+    <div class="kpi-card" style="--kpi-top:#16a34a"><span class="kpi-icon">🟢</span><div class="kpi-val">4</div><div class="kpi-lbl">OAS0 เขียว</div><div class="kpi-sub">ไม่มีอาการ แต่ใช้สารเสพติด</div></div>
+    <div class="kpi-card" style="--kpi-top:#dc2626"><span class="kpi-icon">💊</span><div class="kpi-val">93</div><div class="kpi-lbl">ตัวกระตุ้น: ยาบ้า</div><div class="kpi-sub"><b>71.5%</b> ของผู้ป่วย</div></div>
+    <div class="kpi-card" style="--kpi-top:#7c3aed"><span class="kpi-icon">👮</span><div class="kpi-val">64</div><div class="kpi-lbl">ตำรวจรายงาน</div><div class="kpi-sub">สาธารณสุข <b>58</b> ราย</div></div>
+    <div class="kpi-card" style="--kpi-top:#047857"><span class="kpi-icon">🔁</span><div class="kpi-val">60</div><div class="kpi-lbl">เคยบำบัดมาก่อน</div><div class="kpi-sub">ไม่เคยบำบัด <b>70</b> ราย</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">📈 ผู้ป่วยต่อไตรมาส (แยก OAS)</div></div></div><div class="chart-wrap"><canvas id="cQBar"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">⚡ สัดส่วน OAS ทั้งหมด</div></div></div><div class="chart-wrap"><canvas id="cOAS"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">💊 ตัวกระตุ้น</div></div></div><div class="chart-wrap"><canvas id="cDrug"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่ายรายงาน</div></div></div><div class="chart-wrap"><canvas id="cNet"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🎂 กลุ่มอายุ</div></div></div><div class="chart-wrap"><canvas id="cAge"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🏥 สถานที่รักษา</div></div></div><div class="chart-wrap"><canvas id="cTx"></canvas></div></div>
+  </div>
+</div>
+
+<!-- NETWORK -->
+<div class="section" id="section-network">
+  <div class="sec-title">🌐 เครือข่ายที่ลงข้อมูลในระบบ — แยกรายหน่วยงาน</div>
+  <div class="net-grid">
+    <div class="net-card h"><div style="font-size:22px">🏥</div><div class="net-num">58</div><div class="net-lbl">โรงพยาบาล / สาธารณสุข (สธ.)</div><div class="net-sub">รพ.โกสุมพิสัย • สสอ. • รพ.สต. | <b>44.6%</b></div></div>
+    <div class="net-card p"><div style="font-size:22px">👮</div><div class="net-num">64</div><div class="net-lbl">ตำรวจ (ตร.) สภ.โกสุมพิสัย / สภ.เหล่า</div><div class="net-sub">นำส่งโดยตรง | <b>49.2%</b></div></div>
+    <div class="net-card a"><div style="font-size:22px">🏛️</div><div class="net-num">4</div><div class="net-lbl">ฝ่ายปกครอง</div><div class="net-sub">อำเภอ / กำนัน / ผู้ใหญ่บ้าน | <b>3.1%</b></div></div>
+    <div class="net-card l"><div style="font-size:22px">🏘️</div><div class="net-num">4</div><div class="net-lbl">ท้องถิ่น (อบต./เทศบาล)</div><div class="net-sub">มีรายงานในปีงบนี้ | <b>3.1%</b></div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่ายรายงาน รายไตรมาส</div></div></div><div class="chart-wrap tall"><canvas id="cNetQ"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">📊 สัดส่วนเครือข่าย</div></div></div><div class="chart-wrap tall"><canvas id="cNetPie"></canvas></div></div>
+    <div class="chart-card wide"><div class="chart-hdr"><div><div class="chart-title">🔴 OAS จากแต่ละเครือข่าย</div></div></div><div class="chart-wrap"><canvas id="cNetOAS"></canvas></div></div>
+  </div>
+  <div class="sec-title">📋 รายชื่อแยกตามเครือข่าย</div>
+  <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;">
+    <button class="msg-tab active" id="ntab-all" onclick="filterNet('all',this)">ทั้งหมด (130)</button>
+    <button class="msg-tab" id="ntab-hosp" onclick="filterNet('hosp',this)">🏥 สาธารณสุข (58)</button>
+    <button class="msg-tab" id="ntab-police" onclick="filterNet('police',this)">👮 ตำรวจ (64)</button>
+    <button class="msg-tab" id="ntab-admin" onclick="filterNet('admin',this)">🏛️ ปกครอง (4)</button>
+    <button class="msg-tab" id="ntab-local" onclick="filterNet('local',this)">🏘️ ท้องถิ่น (4)</button>
+  </div>
+  <div id="netTableWrap"></div>
+</div>
+
+<!-- Q1 -->
+<div class="section" id="section-q1">
+  <div class="q-banner q1"><div style="font-size:24px">🟣</div>
+    <div class="q-banner-text"><h2>ไตรมาส 1 — ต.ค. ถึง ธ.ค. 2568</h2><p>ลำดับ 1–18 | ตุลาคม • พฤศจิกายน • ธันวาคม 2568</p></div>
+    <div class="q-chips"><div class="q-chip q1">18 ราย</div><div class="q-chip q1">แดง: 3</div><div class="q-chip q1">ส้ม: 9</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">⚡ OAS Q1</div></div></div><div class="chart-wrap"><canvas id="q1U"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">💊 ตัวกระตุ้น Q1</div></div></div><div class="chart-wrap"><canvas id="q1D"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่าย Q1</div></div></div><div class="chart-wrap"><canvas id="q1N"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🏥 รักษา Q1</div></div></div><div class="chart-wrap"><canvas id="q1T"></canvas></div></div>
+  </div>
+  <div class="sec-title">📋 รายชื่อ Q1</div><div id="tq1"></div>
+</div>
+
+<!-- Q2 -->
+<div class="section" id="section-q2">
+  <div class="q-banner q2"><div style="font-size:24px">🔵</div>
+    <div class="q-banner-text"><h2>ไตรมาส 2 — ม.ค. ถึง มี.ค. 2569</h2><p>ลำดับ 19–71 | มกราคม • กุมภาพันธ์ • มีนาคม 2569</p></div>
+    <div class="q-chips"><div class="q-chip q2">53 ราย</div><div class="q-chip q2">แดง: 11</div><div class="q-chip q2">ส้ม: 30</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">⚡ OAS Q2</div></div></div><div class="chart-wrap"><canvas id="q2U"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">💊 ตัวกระตุ้น Q2</div></div></div><div class="chart-wrap"><canvas id="q2D"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่าย Q2</div></div></div><div class="chart-wrap"><canvas id="q2N"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🏥 รักษา Q2</div></div></div><div class="chart-wrap"><canvas id="q2T"></canvas></div></div>
+  </div>
+  <div class="sec-title">📋 รายชื่อ Q2</div><div id="tq2"></div>
+</div>
+
+<!-- Q3 -->
+<div class="section" id="section-q3">
+  <div class="q-banner q3"><div style="font-size:24px">🟢</div>
+    <div class="q-banner-text"><h2>ไตรมาส 3 — เม.ย. ถึง มิ.ย. 2569</h2><p>ลำดับ 72–108 | เมษายน • พฤษภาคม • มิถุนายน 2569</p></div>
+    <div class="q-chips"><div class="q-chip q3">37 ราย</div><div class="q-chip q3">แดง: 5</div><div class="q-chip q3">ส้ม: 22</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">⚡ OAS Q3</div></div></div><div class="chart-wrap"><canvas id="q3U"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">💊 ตัวกระตุ้น Q3</div></div></div><div class="chart-wrap"><canvas id="q3D"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่าย Q3</div></div></div><div class="chart-wrap"><canvas id="q3N"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🏥 รักษา Q3</div></div></div><div class="chart-wrap"><canvas id="q3T"></canvas></div></div>
+  </div>
+  <div class="sec-title">📋 รายชื่อ Q3</div><div id="tq3"></div>
+</div>
+
+<!-- Q4 -->
+<div class="section" id="section-q4">
+  <div class="q-banner q4"><div style="font-size:24px">🟡</div>
+    <div class="q-banner-text"><h2>ไตรมาส 4 — ก.ค. ถึง ก.ย. 2569 <span class="new-badge">🆕 +3 ราย ล่าสุด!</span></h2><p>ลำดับ 109–130 | กรกฎาคม • สิงหาคม • กันยายน 2569</p></div>
+    <div class="q-chips"><div class="q-chip q4">22 ราย</div><div class="q-chip q4">แดง: 1</div><div class="q-chip q4">ส้ม: 10</div></div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">⚡ OAS Q4</div></div></div><div class="chart-wrap"><canvas id="q4U"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">💊 ตัวกระตุ้น Q4</div></div></div><div class="chart-wrap"><canvas id="q4D"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่าย Q4</div></div></div><div class="chart-wrap"><canvas id="q4N"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🏥 รักษา Q4</div></div></div><div class="chart-wrap"><canvas id="q4T"></canvas></div></div>
+  </div>
+  <div class="sec-title">📋 รายชื่อ Q4 (ราย 109–130) <span class="new-badge">ใหม่! ราย 128–130</span></div><div id="tq4"></div>
+</div>
+
+<!-- COMPARE -->
+<div class="section" id="section-compare">
+  <div class="sec-title">📐 เปรียบเทียบทั้ง 4 ไตรมาส</div>
+  <div class="cmp-grid">
+    <div class="cmp-card"><div class="cmp-hdr q1h"><span>🟣 Q1</span><span class="cmp-num" style="color:var(--q1)">18</span></div>
+      <div class="cmp-row"><span>🔴แดง</span><span style="color:#dc2626">3 ราย</span></div>
+      <div class="cmp-row"><span>🟠ส้ม</span><span style="color:#ea580c">9 ราย</span></div>
+      <div class="cmp-row"><span>🟡เหลือง</span><span style="color:#ca8a04">6 ราย</span></div>
+      <div class="cmp-row"><span>ยาบ้า</span><span>14 ราย</span></div>
+      <div class="cmp-row"><span>🏥สาธารณสุข</span><span style="color:var(--hosp)">13 ราย</span></div>
+      <div class="cmp-row"><span>👮ตำรวจ</span><span style="color:var(--pol)">5 ราย</span></div>
+    </div>
+    <div class="cmp-card"><div class="cmp-hdr q2h"><span>🔵 Q2</span><span class="cmp-num" style="color:var(--q2)">53</span></div>
+      <div class="cmp-row"><span>🔴แดง</span><span style="color:#dc2626">11 ราย</span></div>
+      <div class="cmp-row"><span>🟠ส้ม</span><span style="color:#ea580c">30 ราย</span></div>
+      <div class="cmp-row"><span>🟡เหลือง</span><span style="color:#ca8a04">10 ราย</span></div>
+      <div class="cmp-row"><span>ยาบ้า</span><span>37 ราย</span></div>
+      <div class="cmp-row"><span>🏥สาธารณสุข</span><span style="color:var(--hosp)">26 ราย</span></div>
+      <div class="cmp-row"><span>👮ตำรวจ</span><span style="color:var(--pol)">24 ราย</span></div>
+    </div>
+    <div class="cmp-card"><div class="cmp-hdr q3h"><span>🟢 Q3</span><span class="cmp-num" style="color:var(--q3)">37</span></div>
+      <div class="cmp-row"><span>🔴แดง</span><span style="color:#dc2626">5 ราย</span></div>
+      <div class="cmp-row"><span>🟠ส้ม</span><span style="color:#ea580c">22 ราย</span></div>
+      <div class="cmp-row"><span>🟡เหลือง</span><span style="color:#ca8a04">9 ราย</span></div>
+      <div class="cmp-row"><span>ยาบ้า</span><span>27 ราย</span></div>
+      <div class="cmp-row"><span>🏥สาธารณสุข</span><span style="color:var(--hosp)">12 ราย</span></div>
+      <div class="cmp-row"><span>👮ตำรวจ</span><span style="color:var(--pol)">22 ราย</span></div>
+    </div>
+    <div class="cmp-card"><div class="cmp-hdr q4h"><span>🟡 Q4 🆕</span><span class="cmp-num" style="color:var(--q4)">22</span></div>
+      <div class="cmp-row"><span>🔴แดง</span><span style="color:#dc2626">1 ราย</span></div>
+      <div class="cmp-row"><span>🟠ส้ม</span><span style="color:#ea580c">10 ราย ⬆️</span></div>
+      <div class="cmp-row"><span>🟡เหลือง</span><span style="color:#ca8a04">10 ราย</span></div>
+      <div class="cmp-row"><span>ยาบ้า</span><span>15 ราย</span></div>
+      <div class="cmp-row"><span>🏥สาธารณสุข</span><span style="color:var(--hosp)">8 ราย</span></div>
+      <div class="cmp-row"><span>👮ตำรวจ</span><span style="color:var(--pol)">13 ราย</span></div>
+    </div>
+  </div>
+  <div class="charts-grid">
+    <div class="chart-card wide"><div class="chart-hdr"><div><div class="chart-title">📊 OAS รายไตรมาส</div></div></div><div class="chart-wrap tall"><canvas id="cCmpUrg"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">🌐 เครือข่ายรายงาน รายไตรมาส</div></div></div><div class="chart-wrap tall"><canvas id="cCmpNet"></canvas></div></div>
+    <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">📈 แนวโน้มรวม</div></div></div><div class="chart-wrap tall"><canvas id="cCmpLine"></canvas></div></div>
+  </div>
+</div>
+
+<!-- PATIENTS -->
+<div class="section" id="section-patients">
+  <div class="table-card">
+    <div class="table-hdr">
+      <div class="table-title">👥 รายชื่อผู้ป่วยทั้งหมด 130 ราย <span class="new-badge">ณ 13 ส.ค. 69</span></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+        <select id="qF" class="fsel"><option value="all">ทุก Q</option><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option></select>
+        <select id="oasF" class="fsel"><option value="all">ทุก OAS</option><option value="แดง">🔴แดง</option><option value="ส้ม">🟠ส้ม</option><option value="เหลือง">🟡เหลือง</option><option value="เขียว">🟢เขียว</option></select>
+        <select id="netF" class="fsel"><option value="all">ทุกเครือข่าย</option><option value="hosp">🏥สาธารณสุข</option><option value="police">👮ตำรวจ</option><option value="admin">🏛️ปกครอง</option><option value="local">🏘️ท้องถิ่น</option></select>
+        <input class="search-box" id="sI" type="text" placeholder="🔍 ชื่อ HN ตำบล...">
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ลำดับ</th><th>Q</th><th>HN</th><th>เพศ</th><th>ชื่อ-สกุล</th><th>อายุ</th><th>ตำบล</th><th>OAS</th><th>V1</th><th>V2</th><th>V3</th><th>V4</th><th>ยาบ้า</th><th>สุรา</th><th>กัญชา</th><th>เครือข่าย</th><th>รักษา</th><th>เคยบำบัด</th><th>หมายเหตุ</th></tr></thead>
+        <tbody id="ptB"></tbody>
+      </table>
+    </div>
+    <div class="pagination"><div class="page-info" id="pgI"></div><div class="page-btns" id="pgB"></div></div>
+  </div>
+</div>
+
+<!-- AREA -->
+<div class="section" id="section-area">
+  <div class="sec-title">📍 การกระจายตามพื้นที่ (130 ราย)</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:16px">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:7px;padding:7px 12px;background:#f8fafc;border-radius:9px">🗺️ ผู้ป่วยรายตำบล (Top 10)</div>
+      <div class="area-card">
+        <div class="area-item"><div class="rnk g">1</div><div class="area-name">ต.หัวขวาง</div><div class="bw"><div class="bf" style="width:100%;background:#7c3aed"></div></div><div class="area-cnt">33</div></div>
+        <div class="area-item"><div class="rnk s">2</div><div class="area-name">ต.แพง</div><div class="bw"><div class="bf" style="width:67%"></div></div><div class="area-cnt">22</div></div>
+        <div class="area-item"><div class="rnk b">3</div><div class="area-name">ต.วังยาว</div><div class="bw"><div class="bf" style="width:45%"></div></div><div class="area-cnt">15</div></div>
+        <div class="area-item"><div class="rnk">4</div><div class="area-name">ต.เขวาไร่</div><div class="bw"><div class="bf" style="width:39%"></div></div><div class="area-cnt">13</div></div>
+        <div class="area-item"><div class="rnk">5</div><div class="area-name">ต.ดอนกลาง</div><div class="bw"><div class="bf" style="width:30%"></div></div><div class="area-cnt">10</div></div>
+        <div class="area-item"><div class="rnk">6</div><div class="area-name">ต.เขื่อน</div><div class="bw"><div class="bf" style="width:27%"></div></div><div class="area-cnt">9</div></div>
+        <div class="area-item"><div class="rnk">7</div><div class="area-name">ต.ยางน้อย</div><div class="bw"><div class="bf" style="width:18%"></div></div><div class="area-cnt">6</div></div>
+        <div class="area-item"><div class="rnk">8</div><div class="area-name">ต.หนองบัว</div><div class="bw"><div class="bf" style="width:15%"></div></div><div class="area-cnt">5</div></div>
+        <div class="area-item"><div class="rnk">9</div><div class="area-name">ต.แก้งแก</div><div class="bw"><div class="bf" style="width:15%"></div></div><div class="area-cnt">5</div></div>
+        <div class="area-item"><div class="rnk">10</div><div class="area-name">ต.หนองเหล็ก</div><div class="bw"><div class="bf" style="width:12%"></div></div><div class="area-cnt">4</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:7px;padding:7px 12px;background:#f8fafc;border-radius:9px">🌐 เครือข่ายรายงาน</div>
+      <div class="area-card">
+        <div class="area-item"><div class="rnk g">1</div><div class="area-name">👮 ตำรวจ</div><div class="bw"><div class="bf" style="width:100%;background:#7c3aed"></div></div><div class="area-cnt">64</div></div>
+        <div class="area-item"><div class="rnk s">2</div><div class="area-name">🏥 สาธารณสุข</div><div class="bw"><div class="bf" style="width:91%"></div></div><div class="area-cnt">58</div></div>
+        <div class="area-item"><div class="rnk">3</div><div class="area-name">🏛️ ปกครอง</div><div class="bw"><div class="bf" style="width:6%"></div></div><div class="area-cnt">4</div></div>
+        <div class="area-item"><div class="rnk">4</div><div class="area-name">🏘️ ท้องถิ่น</div><div class="bw"><div class="bf" style="width:6%;background:#b45309"></div></div><div class="area-cnt">4</div></div>
+      </div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin:10px 0 7px;padding:7px 12px;background:#f8fafc;border-radius:9px">🏥 สถานที่รักษา</div>
+      <div class="area-card">
+        <div class="area-item"><div class="rnk g">1</div><div class="area-name">รพ.โกสุมพิสัย</div><div class="bw"><div class="bf" style="width:100%"></div></div><div class="area-cnt">76</div></div>
+        <div class="area-item"><div class="rnk s">2</div><div class="area-name">รพ.จิตเวชขอนแก่น</div><div class="bw"><div class="bf" style="width:37%"></div></div><div class="area-cnt">28</div></div>
+        <div class="area-item"><div class="rnk">3</div><div class="area-name">รพ.มหาสารคาม</div><div class="bw"><div class="bf" style="width:5%"></div></div><div class="area-cnt">4</div></div>
+        <div class="area-item"><div class="rnk">4</div><div class="area-name">ธัญญารักษ์/ร้อยเอ็ด</div><div class="bw"><div class="bf" style="width:5%"></div></div><div class="area-cnt">4</div></div>
+        <div class="area-item"><div class="rnk">5</div><div class="area-name">หนี/ปฏิเสธ</div><div class="bw"><div class="bf" style="width:7%;background:#dc2626"></div></div><div class="area-cnt">5</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="chart-card"><div class="chart-hdr"><div><div class="chart-title">📊 ผู้ป่วยรายตำบล แยกไตรมาส (Top 8)</div></div></div><div class="chart-wrap tall"><canvas id="cArea"></canvas></div></div>
+</div>
+
+</div>
+
+<div class="footer">Dashboard SMI อ.โกสุมพิสัย จ.มหาสารคาม | ปีงบ 2569 | ข้อมูล ณ 13 ส.ค. 2569 | ผู้ป่วย 130 ราย | 🔗 https://lilaplang-png.github.io/smi-dashboard-/</div>
+
+<button class="qr-fab" onclick="document.getElementById('qrOverlay').classList.add('open')">📲 QR / แชร์</button>
+
+<!-- UPLOAD MODAL -->
+<div class="up-overlay" id="upOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="up-modal">
+    <h2>📂 อัปโหลดข้อมูลใหม่</h2>
+    <p style="font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6">เมื่อมีข้อมูลผู้ป่วยใหม่ ทำตามขั้นตอนนี้เพื่ออัปเดต Dashboard ค่ะ</p>
+    <div class="drop-zone" onclick="document.getElementById('fileInput').click()">
+      <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display:none" onchange="handleFile(this)">
+      <div class="dz-ico">📊</div>
+      <div class="dz-txt">คลิกเพื่อเลือกไฟล์</div>
+      <div class="dz-s">รองรับ .xlsx, .xls, .csv</div>
+    </div>
+    <div class="up-note">
+      <strong>📌 วิธีอัปเดต Dashboard ให้ทันสมัย</strong>
+      1. ส่งไฟล์ข้อมูลใหม่ให้ Claude ในช่อง Chat<br>
+      2. Claude อัปเดต Dashboard ให้อัตโนมัติ<br>
+      3. Download ไฟล์ใหม่ แล้ว Upload ทับใน GitHub<br>
+      4. รอ 2 นาที Dashboard จะอัปเดตบน Link ค่ะ
+    </div>
+    <div style="background:#e0f2fe;border-radius:10px;padding:10px 13px;font-size:11px;color:#0369a1;margin-bottom:12px;">
+      <strong>🔗 Link:</strong> https://lilaplang-png.github.io/smi-dashboard-/
+    </div>
+    <button class="btn-c" onclick="document.getElementById('upOverlay').classList.remove('open')">✕ ปิด</button>
+  </div>
+</div>
+
+<!-- QR MODAL -->
+<div class="qr-overlay" id="qrOverlay" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="qr-modal">
+    <h2>📊 แชร์ Dashboard SMI</h2>
+    <div class="qr-sub">ข้อมูล ณ 13 ส.ค. 2569 | 130 ราย</div>
+    <div class="qr-box"><div id="qrcode" style="padding:8px;background:#fff;border-radius:10px;border:1px solid #e2e8f0;display:inline-block"></div></div>
+    <div class="link-row">
+      <input class="link-inp" id="linkInp" type="text" value="https://lilaplang-png.github.io/smi-dashboard-/" readonly>
+      <button class="copy-btn" id="copyLinkBtn" onclick="copyLink()">📋 Copy</button>
+    </div>
+    <div class="msg-tabs">
+      <button class="msg-tab active" id="mt1" onclick="showMsg(1)">ผู้บริหาร</button>
+      <button class="msg-tab" id="mt2" onclick="showMsg(2)">LINE กลุ่ม</button>
+      <button class="msg-tab" id="mt3" onclick="showMsg(3)">ตำรวจ/ปกครอง</button>
+    </div>
+    <div class="msg-box" id="msgBox"></div>
+    <button class="msg-copy-btn" onclick="copyMsg()">📋 Copy ข้อความ</button>
+    <button class="btn-c" onclick="document.getElementById('qrOverlay').classList.remove('open')">✕ ปิด</button>
+  </div>
+</div>
+
+<script>
+const P=[
+ {no:1,q:'Q1',hn:'178945',g:'ญ',name:'นาง นิตยาพร ปัดทุม',age:51,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:2,q:'Q1',hn:'19668',g:'ช',name:'นายพงษ์พันธ์ พงษ์คำผาย',age:32,sub:'หนองบอน',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:1,note:''},
+ {no:3,q:'Q1',hn:'37701',g:'ช',name:'นายเฉลิมพงษ์ ลาภูตะมะ',age:27,sub:'วังยาว',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:1,note:'ก้าวร้าวซ้ำซาก ซ้ำ 3 ครั้ง'},
+ {no:4,q:'Q1',hn:'25492',g:'ช',name:'นายสุวัฒน์ โคตรทอง',age:28,sub:'ดอนกลาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:5,q:'Q1',hn:'152428',g:'ญ',name:'น.ส.กนกอร วงศ์อินอยู่',age:45,sub:'แพง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:6,q:'Q1',hn:'128122',g:'ช',name:'นายอาทิตย์ ทองมี',age:36,sub:'ยางท่าแจ้ง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:7,q:'Q1',hn:'22014',g:'ช',name:'นายชุมพล ด้านวังขวา',age:27,sub:'หัวขวาง',oas:'ส้ม',v1:1,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:8,q:'Q1',hn:'30062',g:'ช',name:'นายกิตติพล เย็นไธสง',age:27,sub:'ดอนกลาง',oas:'แดง',v1:0,v2:1,v3:1,v4:1,yaba:0,sura:0,ganja:0,net:'hosp',tx:'j',bab:1,note:''},
+ {no:9,q:'Q1',hn:'10493',g:'ช',name:'นายสมบัติ สงครามยศ',age:52,sub:'โพนงาม',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:10,q:'Q1',hn:'150193',g:'ช',name:'นายอำพล เสนาพันธ์',age:45,sub:'วังยาว',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:11,q:'Q1',hn:'161893',g:'ช',name:'นายนิรันดร์ ไชยนารถ',age:43,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:12,q:'Q1',hn:'93733',g:'ช',name:'นายณัฐพล เถื่อนคำแสน',age:23,sub:'หัวขวาง',oas:'แดง',v1:1,v2:0,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'j',bab:0,note:''},
+ {no:13,q:'Q1',hn:'67705',g:'ช',name:'นายพลากร สุวรรณสม',age:31,sub:'เขวาไร่',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'j',bab:1,note:''},
+ {no:14,q:'Q1',hn:'30634',g:'ช',name:'นายยอดรักษ์ แข่จะวัต',age:45,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:15,q:'Q1',hn:'16712',g:'ช',name:'นายสิทธิพงษ์ สุวรรณี',age:34,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:16,q:'Q1',hn:'190349',g:'ช',name:'นายตะวัน นาสำแดง',age:24,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:17,q:'Q1',hn:'99891',g:'ช',name:'นายสุบัญชา ดวงพิมพา',age:30,sub:'ยางท่าแจ้ง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:18,q:'Q1',hn:'63890',g:'ช',name:'นายพัสกร สิงห์วงค์',age:28,sub:'เขื่อน',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ // Q2
+ {no:19,q:'Q2',hn:'169488',g:'ช',name:'นายศุภชราศัย ศรีวังพล',age:49,sub:'ดอนกลาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'kj',bab:0,note:''},
+ {no:20,q:'Q2',hn:'170831',g:'ช',name:'นายอาทิตย์ สุวรรณปา',age:26,sub:'วังยาว',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:'ประชาคม'},
+ {no:21,q:'Q2',hn:'28391',g:'ช',name:'นายชรินทร์ ศรีโยทะ',age:28,sub:'หนองเหล็ก',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'local',tx:'k',bab:0,note:''},
+ {no:22,q:'Q2',hn:'98044',g:'ช',name:'นายจักรพรรดิ สุวรรณปา',age:40,sub:'วังยาว',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'j',bab:1,note:''},
+ {no:23,q:'Q2',hn:'19205',g:'ช',name:'นายธนศักดิ์ มะโนธรรม',age:35,sub:'แก้งแก',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:24,q:'Q2',hn:'117157',g:'ช',name:'นายจีระสิทธิ์ อันฤทธิ์',age:20,sub:'เขื่อน',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'police',tx:'k',bab:1,note:''},
+ {no:25,q:'Q2',hn:'52571',g:'ช',name:'นายขวัญชัย สีหนูปุ้ย',age:42,sub:'วังยาว',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:26,q:'Q2',hn:'52773',g:'ช',name:'นายยุทธชัย ดรนาม',age:32,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:27,q:'Q2',hn:'31051',g:'ช',name:'นายอำพล สีชัยปัญหา',age:34,sub:'หนองเหล็ก',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:28,q:'Q2',hn:'169097',g:'ช',name:'นายทรนง ยะสาธะโร',age:47,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:29,q:'Q2',hn:'74405',g:'ช',name:'นายณัฐวุฒิ สายหยุด',age:32,sub:'วังยาว',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:30,q:'Q2',hn:'125861',g:'ช',name:'นายกฤษฎากรณ์ แก้วยอด',age:42,sub:'หนองเหล็ก',oas:'ส้ม',v1:0,v2:0,v3:0,v4:1,yaba:1,sura:1,ganja:0,net:'police',tx:'kd',bab:1,note:''},
+ {no:31,q:'Q2',hn:'9810',g:'ญ',name:'น.ส.ชมพูนุท ดวงบัณฑิต',age:29,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:32,q:'Q2',hn:'93027',g:'ช',name:'นายราชัน บุบผามาลา',age:36,sub:'ดอนกลาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:33,q:'Q2',hn:'32245',g:'ช',name:'นายศราวุฒิ แสนกงพลี',age:40,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:1,v4:1,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'ออกจากเรือนจำ'},
+ {no:34,q:'Q2',hn:'100264',g:'ช',name:'นายสายันต์ คำภาบุตร',age:55,sub:'แพง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:35,q:'Q2',hn:'125847',g:'ช',name:'นายสุรศักดิ์ โพธิ์ศรี',age:35,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'j',bab:1,note:''},
+ {no:36,q:'Q2',hn:'217624',g:'ช',name:'นายอภิวัฒน์ แจ้งสนาม (นอกเขต)',age:25,sub:'เขาสวนกวาง',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'j',bab:0,note:'นอกเขต'},
+ {no:37,q:'Q2',hn:'4228',g:'ช',name:'นายศุภวัจน์ คำบุญเกิด',age:36,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:38,q:'Q2',hn:'61444',g:'ช',name:'นายวีระยุทธ ดวงลิดี',age:29,sub:'หนองบอน',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:39,q:'Q2',hn:'91076',g:'ช',name:'นายเจริญศิลป์ ศิริโอด',age:29,sub:'วังยาว',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:40,q:'Q2',hn:'9186',g:'ญ',name:'น.ส.สมฤทัย ต้นชารี',age:27,sub:'ยางน้อย',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:41,q:'Q2',hn:'17844',g:'ช',name:'นายสุชาติ ดวงทาวัง',age:47,sub:'แพง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'ซ้ำ 3 ครั้ง'},
+ {no:42,q:'Q2',hn:'217827',g:'ช',name:'นายสุจินดา ก้านขุนทด',age:43,sub:'หนองบัว',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:43,q:'Q2',hn:'42050',g:'ช',name:'นายสุระชาติ เถื่อนทะนนท์',age:57,sub:'ยางท่าแจ้ง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:44,q:'Q2',hn:'133066',g:'ช',name:'นายศักดิ์ดา งามเมืองปัก',age:46,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:'ประชาคม'},
+ {no:45,q:'Q2',hn:'134544',g:'ญ',name:'นางรจนา ดวงชาญ',age:42,sub:'เขวาไร่',oas:'แดง',v1:0,v2:1,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'admin',tx:'k',bab:0,note:''},
+ {no:46,q:'Q2',hn:'61025',g:'ช',name:'นายปริวัตร ดวงชาทม',age:31,sub:'หัวขวาง',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'j',bab:1,note:''},
+ {no:47,q:'Q2',hn:'75430',g:'ช',name:'นายณัฐกรณ์ โพธิรุกข์',age:30,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:'IMC ส่งธวัช'},
+ {no:48,q:'Q2',hn:'102058',g:'ช',name:'นายพรทวี นาขี',age:44,sub:'หนองกุงสวรรค์',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:0,net:'police',tx:'d',bab:0,note:'IMC ส่งธวัช'},
+ {no:49,q:'Q2',hn:'69680',g:'ช',name:'นายเศกศักดิ์ สีพลแสน',age:49,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:0,sura:1,ganja:0,net:'admin',tx:'r',bab:0,note:'หนี'},
+ {no:50,q:'Q2',hn:'63890',g:'ช',name:'นายพัสกร สิงห์วงค์ (ซ้ำ)',age:26,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'police',tx:'k',bab:1,note:'ซ้ำ'},
+ {no:51,q:'Q2',hn:'82160',g:'ช',name:'นายสุรเดช หีบแก้ว',age:24,sub:'แห่ใต้',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'police',tx:'j',bab:0,note:''},
+ {no:52,q:'Q2',hn:'18608',g:'ช',name:'บุญชู ตาลทอง',age:26,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'j',bab:1,note:'ซ้ำ 2 ครั้ง'},
+ {no:53,q:'Q2',hn:'52363',g:'ช',name:'นายคงฤทธิ์ แพงเวียงจันทร์',age:56,sub:'ยางท่าแจ้ง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'j',bab:0,note:''},
+ // Q3
+ {no:54,q:'Q3',hn:'93027',g:'ช',name:'นายราชัน บุบผามาลา (2)',age:36,sub:'ดอนกลาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:'IMC'},
+ {no:55,q:'Q3',hn:'46235',g:'ช',name:'นายมงคล โทษา',age:33,sub:'แก้งแก',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:0,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:56,q:'Q3',hn:'128092',g:'ช',name:'นายโยทิน อุดน้อย',age:35,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:'ประชาคม'},
+ {no:57,q:'Q3',hn:'135658',g:'ช',name:'นายใหม่ ศิริวิ',age:57,sub:'หนองบัว',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:58,q:'Q3',hn:'101880',g:'ช',name:'นายสมคิด ถาอาจนา',age:45,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:59,q:'Q3',hn:'121805',g:'ช',name:'นายพีรวัส อ้ายนันท์',age:19,sub:'แพง',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:60,q:'Q3',hn:'57411',g:'ช',name:'นาย เฉลย สีลาย',age:54,sub:'เขื่อน',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:61,q:'Q3',hn:'129440',g:'ช',name:'นายณรงค์ศักดิ์ ศรีสารคาม',age:33,sub:'หัวขวาง',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:1,note:''},
+ {no:62,q:'Q3',hn:'46445',g:'ช',name:'นายสิทธิชัย ดอกจันทร์',age:33,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:63,q:'Q3',hn:'140415',g:'ช',name:'นายสนอง กวาดนอก',age:44,sub:'หัวขวาง',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:64,q:'Q3',hn:'80723',g:'ช',name:'นายบุญนิธิ นิจรมย์',age:26,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'ส่งธวัชบุรี'},
+ {no:65,q:'Q3',hn:'131638',g:'ช',name:'นายสุระกิจ สาระโท',age:17,sub:'แห่ใต้',oas:'แดง',v1:0,v2:1,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'m',bab:0,note:''},
+ {no:66,q:'Q3',hn:'101234',g:'ช',name:'นายปุรกิตต์ ผึ้งทอง',age:23,sub:'เขวาไร่',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:1,net:'police',tx:'k',bab:0,note:''},
+ {no:67,q:'Q3',hn:'176789',g:'ช',name:'ธรรมนูญ บุญศิริ',age:27,sub:'เลิงใต้',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:68,q:'Q3',hn:'28799',g:'ช',name:'พันธ์ มูลมณี',age:65,sub:'แพง',oas:'เหลือง',v1:0,v2:0,v3:1,v4:0,yaba:0,sura:1,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:69,q:'Q3',hn:'106855',g:'ช',name:'นายวัฒนา ทำดี',age:25,sub:'หนองบอน',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'kd',bab:0,note:''},
+ {no:70,q:'Q3',hn:'81096',g:'ช',name:'วงศธร ศิริโอด',age:25,sub:'วังยาว',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:71,q:'Q3',hn:'116434',g:'ช',name:'ภานุ จันทร์สูญ',age:20,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:1,note:''},
+ {no:72,q:'Q3',hn:'173839',g:'ช',name:'นายทองสุข สุขน้อย',age:37,sub:'เขวาไร่',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:73,q:'Q3',hn:'51828',g:'ช',name:'นายอนุสรณ์ ดรชานนท์',age:30,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:74,q:'Q3',hn:'47273',g:'ช',name:'นายวิริยะ ปะกา',age:26,sub:'ดอนกลาง',oas:'แดง',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'j',bab:0,note:''},
+ {no:75,q:'Q3',hn:'132073',g:'ช',name:'นายวรวุฒิ ผะหว่าง',age:30,sub:'หนองบัว',oas:'ส้ม',v1:0,v2:1,v3:1,v4:1,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:76,q:'Q3',hn:'49229',g:'ช',name:'นายสุรเดช ป้อมกลาง',age:39,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:77,q:'Q3',hn:'218608',g:'ช',name:'นายพยัคฆ์ โพธิ์จาทุม',age:45,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:78,q:'Q3',hn:'3802',g:'ช',name:'นายวัฒนา ศรีดาเคน',age:35,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:79,q:'Q3',hn:'73381',g:'ช',name:'สาโรจน์ สีสะบันงา',age:25,sub:'ยางน้อย',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'j',bab:1,note:''},
+ {no:80,q:'Q3',hn:'29562',g:'ช',name:'กรกฏ ซ้ายหนองขาม',age:48,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'j',bab:1,note:''},
+ {no:81,q:'Q3',hn:'125336',g:'ช',name:'นายวิทวัส งามแสง',age:20,sub:'แพง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:82,q:'Q3',hn:'9152',g:'ช',name:'นายชินวัฒน์ สีสาดโหล่น',age:25,sub:'แพง',oas:'แดง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:83,q:'Q3',hn:'36110',g:'ช',name:'นายธีรดนย์ เดยะดี',age:27,sub:'ยางน้อย',oas:'เหลือง',v1:0,v2:0,v3:0,v4:1,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:'IMC หนี'},
+ {no:84,q:'Q3',hn:'69431',g:'ช',name:'นายลิขิต แก้วจอหอ',age:33,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'IMC'},
+ {no:85,q:'Q3',hn:'100867',g:'ช',name:'นายหาร สมไชยมาตร์',age:46,sub:'แพง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:86,q:'Q3',hn:'55529',g:'ช',name:'นายไพพนา พรมโสภา',age:47,sub:'หนองเหล็ก',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:87,q:'Q3',hn:'177184',g:'ญ',name:'นางพานี สิงหาคุณ',age:47,sub:'หนองบัว',oas:'เหลือง',v1:0,v2:0,v3:0,v4:1,yaba:0,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:88,q:'Q3',hn:'66533',g:'ช',name:'นายสุชาติ ธรรมสิมมา',age:46,sub:'โพนงาม',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:'IMC'},
+ {no:89,q:'Q3',hn:'57702',g:'ช',name:'นายทวิชัย เนาว์โอโล',age:28,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:1,note:'IMC V1+V3'},
+ {no:90,q:'Q3',hn:'30783',g:'ช',name:'นายสัญญา โสพรม',age:48,sub:'แห่ใต้',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:91,q:'Q3',hn:'83874',g:'ช',name:'นายธรรมนูญ สีดาช่วย',age:24,sub:'ยางน้อย',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'kd',bab:0,note:''},
+ {no:92,q:'Q3',hn:'69028',g:'ช',name:'นายสุริยะ บุญชัยโย',age:30,sub:'วังยาว',oas:'ส้ม',v1:1,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:'IMC V1+V3'},
+ {no:93,q:'Q3',hn:'126907',g:'ช',name:'นายอภิรักษ์ ภูมิโยชน์',age:32,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:94,q:'Q3',hn:'20013',g:'ช',name:'นายเอกกมล ชูขันธ์',age:30,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:95,q:'Q3',hn:'139389',g:'ช',name:'นายสุระพันธ์ นามมุงคุณ',age:39,sub:'โพนงาม',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:96,q:'Q3',hn:'68748',g:'ช',name:'นายวิทยกร สิมหาบุตร',age:25,sub:'ยางน้อย',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:97,q:'Q3',hn:'33800',g:'ช',name:'นายชนน ถาอาจนา',age:27,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:98,q:'Q3',hn:'84428',g:'ช',name:'นาย พงศธร จิตบุตร',age:32,sub:'ยางท่าแจ้ง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:99,q:'Q3',hn:'56899',g:'ญ',name:'นางวิยดา วันดี',age:42,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:'IMC'},
+ {no:100,q:'Q3',hn:'219000',g:'ช',name:'นายศราวุธ ยอดคำ',age:44,sub:'หนองกุงสวรรค์',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:101,q:'Q3',hn:'218556',g:'ญ',name:'นางจันทิพย์ วงศ์ประพันธ์',age:56,sub:'เขื่อน',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:102,q:'Q3',hn:'42159',g:'ช',name:'นาย ณรงค์วัฒน์ ศรีละออง',age:30,sub:'ดอนกลาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:103,q:'Q3',hn:'61258',g:'ช',name:'นายสกล บุญมาศ',age:42,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:104,q:'Q3',hn:'1263',g:'ช',name:'นายเมฆชนะ โพธิ์ฤทธิ์',age:29,sub:'หัวขวาง',oas:'ส้ม',v1:1,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:105,q:'Q3',hn:'18374',g:'ช',name:'นายนรินทร์ จันโสดา',age:45,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:106,q:'Q3',hn:'190360',g:'ช',name:'นายดวงพิพัทธ์ ตุ้มทอง',age:26,sub:'หัวขวาง',oas:'เหลือง',v1:1,v2:0,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:''},
+ {no:107,q:'Q3',hn:'26470',g:'ช',name:'นาย อมรธัช ไชยปัดชา',age:42,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:108,q:'Q3',hn:'117658',g:'ช',name:'นายรัชชานนท์ ไชยโวหาร',age:19,sub:'แห่ใต้',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'kd',bab:0,note:''},
+ // Q4 (109-130)
+ {no:109,q:'Q4',hn:'45766',g:'ช',name:'นายสันติ พลตื้อ',age:34,sub:'หนองบัว',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'police',tx:'k',bab:1,note:'ซ้ำ 2 ครั้ง'},
+ {no:110,q:'Q4',hn:'71813',g:'ช',name:'นายนาจณรงค์ ศิริชา',age:39,sub:'ดอนกลาง',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:111,q:'Q4',hn:'191348',g:'ช',name:'นายพงษ์พาดา วิราโค',age:42,sub:'เขื่อน',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:0,note:''},
+ {no:112,q:'Q4',hn:'79077',g:'ช',name:'นายกฤษดา กลัดเกษา',age:24,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:113,q:'Q4',hn:'132010',g:'ช',name:'นายพงศกร เกตเสนา',age:19,sub:'แพง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:0,note:'IMC'},
+ {no:114,q:'Q4',hn:'125336',g:'ช',name:'นายวิทวัส งามแสง (2)',age:20,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'IMC ซ้ำ 2'},
+ {no:115,q:'Q4',hn:'140406',g:'ช',name:'นายประยุทธ จันทร์สูญ',age:49,sub:'หัวขวาง',oas:'แดง',v1:1,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'police',tx:'k',bab:1,note:'ลูกชายSMIV'},
+ {no:116,q:'Q4',hn:'124611',g:'ช',name:'นายปริชญ์ ดีจันทร์',age:31,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'police',tx:'k',bab:1,note:''},
+ {no:117,q:'Q4',hn:'3730',g:'ช',name:'นายวัชรพงษ์ ซ้ายศรี',age:43,sub:'วังยาว',oas:'เหลือง',v1:0,v2:1,v3:1,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:''},
+ {no:118,q:'Q4',hn:'83342',g:'ช',name:'นายศราวุฒิ สีจันดี',age:33,sub:'เขวาไร่',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'police',tx:'k',bab:1,note:''},
+ {no:119,q:'Q4',hn:'65236',g:'ช',name:'นายขวัญชัย ถามุลตรี',age:39,sub:'โพนงาม',oas:'เหลือง',v1:0,v2:1,v3:1,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:120,q:'Q4',hn:'156321',g:'ช',name:'นายกิตติพงษ์ จ่าเหลา',age:46,sub:'หัวขวาง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'hosp',tx:'k',bab:0,note:'หนี'},
+ {no:121,q:'Q4',hn:'169097',g:'ช',name:'นายทรนง ยะสาธะโร (2)',age:47,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:0,v3:1,v4:0,yaba:1,sura:1,ganja:1,net:'police',tx:'k',bab:1,note:'ซ้ำ 3 ครั้ง'},
+ {no:122,q:'Q4',hn:'106387',g:'ช',name:'นายสายยนต์ จันทร์หล่า',age:42,sub:'แพง',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:1,note:'ปัญหาสังคม'},
+ {no:123,q:'Q4',hn:'59330',g:'ช',name:'นายปรเมษฐ์ เหงี่ยมสมบัติ',age:32,sub:'หัวขวาง',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:''},
+ {no:124,q:'Q4',hn:'133156',g:'ช',name:'นายวีระศักดิ์ ภิรมย์ราช',age:20,sub:'โพนงาม',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:1,net:'hosp',tx:'k',bab:1,note:''},
+ {no:125,q:'Q4',hn:'132064',g:'ช',name:'นายอภิสิทธิ์ ชาแก้ว',age:22,sub:'หนองกุงสวรรค์',oas:'เหลือง',v1:1,v2:0,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'r',bab:0,note:'หนี'},
+ {no:126,q:'Q4',hn:'70663',g:'ญ',name:'น.ส.สุพรรษา โพธิสิม',age:31,sub:'หนองบัว',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:0,net:'local',tx:'k',bab:0,note:''},
+ {no:127,q:'Q4',hn:'90084',g:'ช',name:'นายธนากร มุลลีปุ้ม',age:27,sub:'แก้งแก',oas:'เหลือง',v1:0,v2:1,v3:0,v4:0,yaba:0,sura:0,ganja:0,net:'local',tx:'k',bab:1,note:''},
+ {no:128,q:'Q4',hn:'38557',g:'ช',name:'อภิศักดิ์ จอมทอง',age:37,sub:'แก้งแก',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:0,net:'police',tx:'k',bab:1,note:'',isNew:true},
+ {no:129,q:'Q4',hn:'173618',g:'ช',name:'นายรุ่งทิวา งอสอน',age:35,sub:'เขวาไร่',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:1,ganja:0,net:'hosp',tx:'k',bab:1,note:'',isNew:true},
+ {no:130,q:'Q4',hn:'55997',g:'ช',name:'นายธีรพงษ์ ศรีพลแท่น',age:32,sub:'เหล่า',oas:'ส้ม',v1:0,v2:1,v3:0,v4:0,yaba:1,sura:0,ganja:1,net:'hosp',tx:'k',bab:0,note:'',isNew:true},
+];
+
+function oasCls(o){if(o==='แดง')return'u-r';if(o==='ส้ม')return'u-o';if(o==='เหลือง')return'u-y';return'u-g';}
+function oasLbl(o){if(o==='แดง')return'🔴แดง';if(o==='ส้ม')return'🟠ส้ม';if(o==='เหลือง')return'🟡เหลือง';return'🟢เขียว';}
+function txLbl(t){if(t==='k')return'รพ.โกสุม';if(t==='j')return'รพ.จิตเวช';if(t==='d')return'ธัญญา/ร้อยเอ็ด';if(t==='m')return'รพ.มหาสารคาม';if(t==='kj')return'โกสุม+จิตเวช';if(t==='kd')return'โกสุม+ธัญญา';if(t==='r')return'หนี';if(t==='p')return'ปฏิเสธ';return'-';}
+function netLbl(n){if(n==='hosp')return'<span class="net-pill nb-h">🏥 สาธารณสุข</span>';if(n==='police')return'<span class="net-pill nb-p">👮 ตำรวจ</span>';if(n==='admin')return'<span class="net-pill nb-a">🏛️ ปกครอง</span>';return'<span class="net-pill nb-l">🏘️ ท้องถิ่น</span>';}
+function qd(q){return P.filter(p=>p.q===q);}
+
+const F={family:'Sarabun',size:11};
+const TC='#64748b',GC='rgba(0,0,0,.04)';
+function bO(s=false){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#475569',font:F,padding:8}}},scales:{x:{stacked:s,ticks:{color:TC,font:F},grid:{color:GC}},y:{stacked:s,ticks:{color:TC,font:F},grid:{color:GC}}}};}
+function pO(p='right'){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:p,labels:{color:'#475569',font:F,padding:7}}}};}
+function oasCnt(a){let r=0,o=0,y=0,g=0;a.forEach(p=>{if(p.oas==='แดง')r++;else if(p.oas==='ส้ม')o++;else if(p.oas==='เหลือง')y++;else g++;});return[r,o,y,g];}
+function dCnt(a){return[a.filter(p=>p.yaba).length,a.filter(p=>p.sura).length,a.filter(p=>p.ganja).length];}
+function nCnt(a){return[a.filter(p=>p.net==='hosp').length,a.filter(p=>p.net==='police').length,a.filter(p=>p.net==='admin').length,a.filter(p=>p.net==='local').length];}
+function tCnt(a){return[a.filter(p=>p.tx==='k'||p.tx==='kj'||p.tx==='kd').length,a.filter(p=>p.tx==='j'||p.tx==='kj').length];}
+
+// Q4 counts: 22 total — แดง:1, ส้ม:10, เหลือง:10, เขียว:1
+new Chart(document.getElementById('cQBar'),{type:'bar',data:{
+  labels:['Q1 (18)','Q2 (53)','Q3 (37)','Q4 (22)'],
+  datasets:[
+    {label:'🔴แดง',data:[3,11,5,1],backgroundColor:'rgba(220,38,38,.8)',borderRadius:3},
+    {label:'🟠ส้ม',data:[9,30,22,10],backgroundColor:'rgba(234,88,12,.8)',borderRadius:3},
+    {label:'🟡เหลือง',data:[6,10,9,10],backgroundColor:'rgba(202,138,4,.8)',borderRadius:3},
+    {label:'🟢เขียว',data:[0,2,1,1],backgroundColor:'rgba(22,163,74,.8)',borderRadius:3},
+  ]},options:{...bO(true)}});
+
+new Chart(document.getElementById('cOAS'),{type:'doughnut',data:{
+  labels:['🔴แดง (20)','🟠ส้ม (71)','🟡เหลือง (35)','🟢เขียว (4)'],
+  datasets:[{data:[20,71,35,4],backgroundColor:['rgba(220,38,38,.85)','rgba(234,88,12,.85)','rgba(202,138,4,.85)','rgba(22,163,74,.85)'],borderColor:['#dc2626','#ea580c','#ca8a04','#16a34a'],borderWidth:2}]},
+  options:{...pO(),cutout:'58%'}});
+
+new Chart(document.getElementById('cDrug'),{type:'bar',data:{
+  labels:['ยาบ้า (93)','สุรา (49)','กัญชา (26)'],
+  datasets:[{data:[93,49,26],backgroundColor:['rgba(220,38,38,.8)','rgba(234,88,12,.8)','rgba(22,163,74,.8)'],borderRadius:5}]},
+  options:{...bO(),indexAxis:'y',plugins:{legend:{display:false}}}});
+
+new Chart(document.getElementById('cNet'),{type:'doughnut',data:{
+  labels:['🏥สาธารณสุข (58)','👮ตำรวจ (64)','🏛️ปกครอง (4)','🏘️ท้องถิ่น (4)'],
+  datasets:[{data:[58,64,4,4],backgroundColor:['rgba(3,105,161,.85)','rgba(124,58,237,.85)','rgba(4,120,87,.85)','rgba(180,83,9,.85)'],borderWidth:2}]},
+  options:{...pO(),cutout:'55%'}});
+
+new Chart(document.getElementById('cAge'),{type:'pie',data:{
+  labels:['วัยทำงาน 20-39','วัยกลางคน 40-59','วัยรุ่น <20','ผู้สูงอายุ 60+'],
+  datasets:[{data:[75,40,10,5],backgroundColor:['rgba(37,99,235,.8)','rgba(124,58,237,.8)','rgba(22,163,74,.8)','rgba(234,88,12,.8)'],borderWidth:2}]},
+  options:pO('bottom')});
+
+new Chart(document.getElementById('cTx'),{type:'bar',data:{
+  labels:['รพ.โกสุม','รพ.จิตเวช','รพ.มหาสารคาม','ธัญญา/ร้อยเอ็ด','หนี/ปฏิเสธ'],
+  datasets:[{data:[76,28,4,4,5],backgroundColor:['rgba(37,99,235,.8)','rgba(124,58,237,.8)','rgba(22,163,74,.7)','rgba(234,88,12,.7)','rgba(220,38,38,.7)'],borderRadius:5}]},
+  options:{...bO(),indexAxis:'y',plugins:{legend:{display:false}}}});
+
+new Chart(document.getElementById('cNetQ'),{type:'bar',data:{
+  labels:['Q1','Q2','Q3','Q4'],
+  datasets:[
+    {label:'🏥สาธารณสุข',data:[13,26,12,7],backgroundColor:'rgba(3,105,161,.8)',borderRadius:4},
+    {label:'👮ตำรวจ',data:[5,24,22,13],backgroundColor:'rgba(124,58,237,.8)',borderRadius:4},
+    {label:'🏛️ปกครอง',data:[0,2,0,2],backgroundColor:'rgba(4,120,87,.8)',borderRadius:4},
+    {label:'🏘️ท้องถิ่น',data:[0,1,1,2],backgroundColor:'rgba(180,83,9,.8)',borderRadius:4},
+  ]},options:bO()});
+
+new Chart(document.getElementById('cNetPie'),{type:'doughnut',data:{
+  labels:['🏥สาธารณสุข 58','👮ตำรวจ 64','🏛️ปกครอง 4','🏘️ท้องถิ่น 4'],
+  datasets:[{data:[58,64,4,4],backgroundColor:['rgba(3,105,161,.85)','rgba(124,58,237,.85)','rgba(4,120,87,.85)','rgba(180,83,9,.85)'],borderWidth:2}]},
+  options:{...pO('bottom'),cutout:'55%'}});
+
+new Chart(document.getElementById('cNetOAS'),{type:'bar',data:{
+  labels:['🔴แดง','🟠ส้ม','🟡เหลือง'],
+  datasets:[
+    {label:'🏥สาธารณสุข',data:[11,33,12],backgroundColor:'rgba(3,105,161,.8)',borderRadius:4},
+    {label:'👮ตำรวจ',data:[8,35,19],backgroundColor:'rgba(124,58,237,.8)',borderRadius:4},
+    {label:'🏛️ปกครอง',data:[1,1,2],backgroundColor:'rgba(4,120,87,.8)',borderRadius:4},
+    {label:'🏘️ท้องถิ่น',data:[0,2,2],backgroundColor:'rgba(180,83,9,.8)',borderRadius:4},
+  ]},options:bO()});
+
+function mkQCharts(q,u,d,n,t){
+  const a=qd(q),oc=oasCnt(a),dc=dCnt(a),nc=nCnt(a),tc=tCnt(a);
+  new Chart(document.getElementById(u),{type:'doughnut',data:{labels:['แดง','ส้ม','เหลือง','เขียว'],datasets:[{data:oc,backgroundColor:['rgba(220,38,38,.85)','rgba(234,88,12,.85)','rgba(202,138,4,.85)','rgba(22,163,74,.85)'],borderWidth:2}]},options:{...pO('right'),cutout:'55%'}});
+  new Chart(document.getElementById(d),{type:'bar',data:{labels:['ยาบ้า','สุรา','กัญชา'],datasets:[{data:dc,backgroundColor:['rgba(220,38,38,.8)','rgba(234,88,12,.8)','rgba(22,163,74,.8)'],borderRadius:4}]},options:{...bO(),indexAxis:'y',plugins:{legend:{display:false}}}});
+  new Chart(document.getElementById(n),{type:'doughnut',data:{labels:['🏥สาธารณสุข','👮ตำรวจ','🏛️ปกครอง','🏘️ท้องถิ่น'],datasets:[{data:nc,backgroundColor:['rgba(3,105,161,.85)','rgba(124,58,237,.85)','rgba(4,120,87,.85)','rgba(180,83,9,.85)'],borderWidth:2}]},options:{...pO('right'),cutout:'55%'}});
+  new Chart(document.getElementById(t),{type:'bar',data:{labels:['รพ.โกสุม','รพ.จิตเวช'],datasets:[{data:tc,backgroundColor:['rgba(37,99,235,.8)','rgba(124,58,237,.8)'],borderRadius:4}]},options:{...bO(),indexAxis:'y',plugins:{legend:{display:false}}}});
+}
+mkQCharts('Q1','q1U','q1D','q1N','q1T');
+mkQCharts('Q2','q2U','q2D','q2N','q2T');
+mkQCharts('Q3','q3U','q3D','q3N','q3T');
+mkQCharts('Q4','q4U','q4D','q4N','q4T');
+
+new Chart(document.getElementById('cCmpUrg'),{type:'bar',data:{
+  labels:['🔴แดง','🟠ส้ม','🟡เหลือง','🟢เขียว'],
+  datasets:[
+    {label:'Q1',data:[3,9,6,0],backgroundColor:'rgba(124,58,237,.75)',borderRadius:4},
+    {label:'Q2',data:[11,30,10,2],backgroundColor:'rgba(3,105,161,.75)',borderRadius:4},
+    {label:'Q3',data:[5,22,9,1],backgroundColor:'rgba(4,120,87,.75)',borderRadius:4},
+    {label:'Q4',data:[1,10,10,1],backgroundColor:'rgba(180,83,9,.75)',borderRadius:4},
+  ]},options:bO()});
+
+new Chart(document.getElementById('cCmpNet'),{type:'bar',data:{
+  labels:['Q1','Q2','Q3','Q4'],
+  datasets:[
+    {label:'🏥สาธารณสุข',data:[13,26,12,7],backgroundColor:'rgba(3,105,161,.8)',borderRadius:4},
+    {label:'👮ตำรวจ',data:[5,24,22,13],backgroundColor:'rgba(124,58,237,.8)',borderRadius:4},
+    {label:'🏛️ปกครอง',data:[0,2,0,2],backgroundColor:'rgba(4,120,87,.8)',borderRadius:4},
+    {label:'🏘️ท้องถิ่น',data:[0,1,1,2],backgroundColor:'rgba(180,83,9,.8)',borderRadius:4},
+  ]},options:bO()});
+
+new Chart(document.getElementById('cCmpLine'),{type:'line',data:{
+  labels:['Q1','Q2','Q3','Q4'],
+  datasets:[
+    {label:'ผู้ป่วยทั้งหมด',data:[18,53,37,22],borderColor:'#2563eb',backgroundColor:'rgba(37,99,235,.1)',tension:.4,fill:true,pointRadius:5,pointBackgroundColor:'#2563eb'},
+    {label:'🔴+🟠เร่งด่วน',data:[12,41,27,11],borderColor:'#dc2626',backgroundColor:'rgba(220,38,38,.07)',tension:.4,fill:true,pointRadius:5,pointBackgroundColor:'#dc2626',borderDash:[5,3]},
+    {label:'👮ตำรวจ',data:[5,24,22,13],borderColor:'#7c3aed',tension:.4,pointRadius:4,pointBackgroundColor:'#7c3aed',borderDash:[3,2]},
+    {label:'🏥สาธารณสุข',data:[13,26,12,7],borderColor:'#0369a1',tension:.4,pointRadius:4,pointBackgroundColor:'#0369a1',borderDash:[3,2]},
+  ]},options:bO()});
+
+new Chart(document.getElementById('cArea'),{type:'bar',data:{
+  labels:['หัวขวาง','แพง','วังยาว','เขวาไร่','ดอนกลาง','เขื่อน','ยางน้อย','หนองบัว'],
+  datasets:[
+    {label:'Q1',data:[5,3,4,2,2,1,0,0],backgroundColor:'rgba(124,58,237,.75)',borderRadius:2},
+    {label:'Q2',data:[11,9,6,5,4,5,1,2],backgroundColor:'rgba(3,105,161,.75)',borderRadius:2},
+    {label:'Q3',data:[12,8,4,4,4,3,5,3],backgroundColor:'rgba(4,120,87,.75)',borderRadius:2},
+    {label:'Q4',data:[5,2,1,2,0,0,0,0],backgroundColor:'rgba(180,83,9,.75)',borderRadius:2},
+  ]},options:{...bO(true),indexAxis:'y'}});
+
+function mkMini(cid,data){
+  const el=document.getElementById(cid);if(!el)return;
+  const c=document.createElement('div');c.className='table-card';
+  c.innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>ลำดับ</th><th>HN</th><th>เพศ</th><th>ชื่อ-สกุล</th><th>อายุ</th><th>ตำบล</th><th>OAS</th><th>V1</th><th>V2</th><th>V3</th><th>V4</th><th>ยาบ้า</th><th>สุรา</th><th>เครือข่าย</th><th>รักษา</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>${data.map(p=>`<tr class="${p.isNew?'nr':''}">
+      <td><span class="nb">${p.no}</span>${p.isNew?'<span class="new-badge">ใหม่!</span>':''}</td>
+      <td style="font-size:10px;color:var(--text3)">${p.hn}</td>
+      <td><span class="${p.g==='ช'?'gm':'gf'}">${p.g==='ช'?'ชาย':'หญิง'}</span></td>
+      <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${p.name}</td>
+      <td style="font-size:10px">${p.age}ปี</td>
+      <td style="font-size:10px;color:var(--text2)">${p.sub}</td>
+      <td><span class="u-pill ${oasCls(p.oas)}">${oasLbl(p.oas)}</span></td>
+      <td><span class="dot ${p.v1?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v2?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v3?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v4?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.yaba?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.sura?'dy':'dn'}"></span></td>
+      <td>${netLbl(p.net)}</td>
+      <td style="font-size:10px">${txLbl(p.tx)}</td>
+      <td style="font-size:10px;color:var(--text2)">${p.note?`<span class="${p.note.includes('IMC')?'imc-badge':''}">${p.note}</span>`:''}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+  el.appendChild(c);
+}
+mkMini('tq1',qd('Q1'));mkMini('tq2',qd('Q2'));mkMini('tq3',qd('Q3'));mkMini('tq4',qd('Q4'));
+
+let pg=1,rpp=20,fd=[...P];
+function renderT(){
+  const s=(pg-1)*rpp,e=s+rpp,page=fd.slice(s,e);
+  document.getElementById('ptB').innerHTML=page.map(p=>`
+    <tr class="${p.isNew?'nr':''}">
+      <td><span class="nb">${p.no}</span>${p.isNew?'<span class="new-badge">ใหม่!</span>':''}</td>
+      <td><span class="qt ${p.q}">${p.q}</span></td>
+      <td style="font-size:10px;color:var(--text3)">${p.hn}</td>
+      <td><span class="${p.g==='ช'?'gm':'gf'}">${p.g==='ช'?'ชาย':'หญิง'}</span></td>
+      <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${p.name}</td>
+      <td style="font-size:10px">${p.age}ปี</td>
+      <td style="font-size:10px;color:var(--text2)">${p.sub}</td>
+      <td><span class="u-pill ${oasCls(p.oas)}">${oasLbl(p.oas)}</span></td>
+      <td><span class="dot ${p.v1?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v2?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v3?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.v4?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.yaba?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.sura?'dy':'dn'}"></span></td>
+      <td><span class="dot ${p.ganja?'dy':'dn'}"></span></td>
+      <td>${netLbl(p.net)}</td>
+      <td style="font-size:10px">${txLbl(p.tx)}</td>
+      <td style="font-size:10px">${p.bab?'<span style="color:#16a34a;font-weight:700">เคย</span>':'<span style="color:var(--text3)">ไม่เคย</span>'}</td>
+      <td style="font-size:10px;color:var(--text2)">${p.note?`<span class="${p.note.includes('IMC')?'imc-badge':''}">${p.note}</span>`:''}</td>
+    </tr>`).join('');
+  const tot=fd.length,tp=Math.ceil(tot/rpp);
+  document.getElementById('pgI').textContent=`${s+1}–${Math.min(e,tot)} จาก ${tot} ราย`;
+  document.getElementById('pgB').innerHTML=Array.from({length:tp},(_,i)=>
+    `<button class="page-btn${i+1===pg?' active':''}" onclick="gp(${i+1})">${i+1}</button>`).join('');
+}
+function gp(n){pg=n;renderT();}
+function af(){
+  const q=document.getElementById('sI').value.toLowerCase();
+  const qf=document.getElementById('qF').value;
+  const oasf=document.getElementById('oasF').value;
+  const nf=document.getElementById('netF').value;
+  fd=P.filter(p=>
+    (qf==='all'||p.q===qf)&&
+    (oasf==='all'||p.oas===oasf)&&
+    (nf==='all'||p.net===nf)&&
+    (p.name.toLowerCase().includes(q)||p.hn.includes(q)||p.sub.includes(q)||p.note.toLowerCase().includes(q))
+  );pg=1;renderT();
+}
+['sI','qF','oasF','netF'].forEach(id=>document.getElementById(id)?.addEventListener(id==='sI'?'input':'change',af));
+
+function filterNet(n,btn){
+  document.querySelectorAll('[id^="ntab-"]').forEach(b=>b.classList.remove('active'));
+  btn?.classList.add('active');
+  const data=n==='all'?P:P.filter(p=>p.net===n);
+  const wrap=document.getElementById('netTableWrap');wrap.innerHTML='';
+  const c=document.createElement('div');c.className='table-card';
+  c.innerHTML=`<div class="table-wrap"><table>
+    <thead><tr><th>ลำดับ</th><th>Q</th><th>HN</th><th>ชื่อ-สกุล</th><th>ตำบล</th><th>OAS</th><th>เครือข่าย</th><th>รักษา</th><th>หมายเหตุ</th></tr></thead>
+    <tbody>${data.map(p=>`<tr class="${p.isNew?'nr':''}">
+      <td><span class="nb">${p.no}</span>${p.isNew?'<span class="new-badge">ใหม่!</span>':''}</td>
+      <td><span class="qt ${p.q}">${p.q}</span></td>
+      <td style="font-size:10px;color:var(--text3)">${p.hn}</td>
+      <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${p.name}</td>
+      <td style="font-size:10px;color:var(--text2)">${p.sub}</td>
+      <td><span class="u-pill ${oasCls(p.oas)}">${oasLbl(p.oas)}</span></td>
+      <td>${netLbl(p.net)}</td>
+      <td style="font-size:10px">${txLbl(p.tx)}</td>
+      <td style="font-size:10px;color:var(--text2)">${p.note}</td>
+    </tr>`).join('')}</tbody>
+  </table></div><div style="padding:7px 13px;font-size:11px;color:var(--text3);background:#f8fafc">รวม ${data.length} ราย</div>`;
+  wrap.appendChild(c);
+}
+filterNet('all',document.getElementById('ntab-all'));
+
+function sw(tab,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+tab).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(tab==='patients')renderT();
+}
+renderT();
+
+const LINK='https://lilaplang-png.github.io/smi-dashboard-/';
+window.addEventListener('load',()=>{
+  try{new QRCode(document.getElementById('qrcode'),{text:LINK,width:175,height:175,colorDark:'#1e293b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});}
+  catch(e){}
+});
+
+const MSGS={
+1:`เรียน ท่านผู้บริหาร
+
+📊 Dashboard SMI อ.โกสุมพิสัย ปีงบ 2569
+🔗 ${LINK}
+
+📌 ข้อมูล ณ 13 ส.ค. 2569 — 130 ราย
+🔴 OAS3 แดง: 20 ราย (15.4%)
+🟠 OAS2 ส้ม: 71 ราย (54.6%)
+💊 ยาบ้า: 93 ราย (71.5%)
+👮 ตำรวจรายงาน: 64 ราย
+🏥 สาธารณสุข: 58 ราย
+🏛️ ปกครอง: 4 ราย
+🏘️ ท้องถิ่น: 4 ราย
+
+✅ ดูได้ทุกอุปกรณ์ | แยก Q1–Q4 | แยกเครือข่าย
+
+จึงเรียนมาเพื่อโปรดทราบ
+ทีมสุขภาพจิต สสอ.โกสุมพิสัย`,
+2:`📊 Dashboard SMI อ.โกสุมพิสัย ปีงบ 2569
+🔗 ${LINK}
+
+ข้อมูล ณ 13 ส.ค. 69 | 130 ราย
+🔴แดง 20 • 🟠ส้ม 71 • 🟡เหลือง 35
+💊ยาบ้า 93 | 🍺สุรา 49 | 🌿กัญชา 26
+👮ตร. 64 | 🏥สธ. 58 | 🏛️ปกครอง 4 | 🏘️ท้องถิ่น 4
+
+✅ดูได้ทุกอุปกรณ์ แยกรายไตรมาส`,
+3:`สวัสดีครับ/ค่ะ ทีมสุขภาพจิต สสอ.โกสุมพิสัย
+แจ้งข้อมูลผู้ป่วย SMI ปีงบ 2569
+
+🔗 ${LINK}
+
+ณ 13 ส.ค. 2569 (130 ราย)
+👮 ตำรวจรายงาน: 64 ราย
+🏥 สาธารณสุข: 58 ราย
+🏛️ ปกครอง: 4 ราย
+🏘️ ท้องถิ่น: 4 ราย
+
+🔴 ฉุกเฉิน (แดง): 20 ราย
+🟠 เร่งด่วน (ส้ม): 71 ราย`};
+
+let curMsg=1;
+function showMsg(n){
+  curMsg=n;
+  for(let i=1;i<=3;i++)document.getElementById('mt'+i)?.classList.remove('active');
+  document.getElementById('mt'+n)?.classList.add('active');
+  document.getElementById('msgBox').textContent=MSGS[n];
+}
+showMsg(1);
+function copyLink(){
+  navigator.clipboard.writeText(LINK).then(()=>{
+    const b=document.getElementById('copyLinkBtn');b.textContent='✅ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy',2000);
+  });
+}
+function copyMsg(){
+  navigator.clipboard.writeText(MSGS[curMsg]).then(()=>{
+    const b=document.querySelector('.msg-copy-btn');b.textContent='✅ Copied!';
+    setTimeout(()=>b.textContent='📋 Copy ข้อความ',2000);
+  });
+}
+function handleFile(input){
+  if(!input.files[0])return;
+  document.getElementById('upOverlay').classList.remove('open');
+  alert('✅ ได้รับไฟล์: '+input.files[0].name+'\n\nกรุณาส่งไฟล์นี้ให้ Claude ใน Chat เพื่ออัปเดต Dashboard อัตโนมัติค่ะ');
+}
+</script>
+</body>
+</html>
